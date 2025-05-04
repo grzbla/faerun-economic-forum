@@ -1,0 +1,6580 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Faerûnian Trade Index</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #1e1e1e;
+      color: #c9c9c9;
+      margin: 20px;
+    }
+    h1, a {
+      text-align: center;
+      color: #f0e68c;
+      text-decoration: none;
+    }
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .filter-button {
+      padding: 8px 12px;
+      font-size: 14px;
+      background-color: #333;
+      color: #c9c9c9;
+      border: 1px solid #555;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .filter-button.active {
+      background-color: #555;
+      color: #fff;
+    }
+    .search-bar {
+      padding: 10px;
+      font-size: 16px;
+      background-color: #333;
+      color: #c9c9c9;
+      border: 1px solid #555;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      width: 100%;
+      max-width: 300px;
+      margin-left: auto;
+      margin-right: auto;
+      display: block;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+    .item-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .item {
+      background-color: #2c2c2c;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #444;
+      width: 100%;
+      max-width: 320px;
+    }
+    .item h2 {
+      font-size: 18px;
+      margin: 10px 0;
+      color: #e6b800;
+    }
+    .item img {
+      width: 100%;
+      background-color: #555;
+      border-radius: 5px;
+      height: auto;
+    }
+    .item img.off {
+      filter: sepia(1);
+    }
+    .item p {
+      color: #c9c9c9;
+    }
+    .group h2 {
+      margin-left: 10px;
+      color: #f0e68c;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Faerûnian Trade Index</h1>
+
+<div class="filter-bar">
+  <button class="filter-button" onclick="toggleFilter(event)">Alloys</button>
+  <button class="filter-button" onclick="toggleFilter(event)">Crop</button>
+  <button class="filter-button" onclick="toggleFilter(event)">Gems</button>
+  <button class="filter-button" onclick="toggleFilter(event)">Fiber</button>
+  <button class="filter-button" onclick="toggleFilter(event)">Fruit</button>
+  <button class="filter-button" onclick="toggleFilter(event)">Glass</button>
+  <button class="filter-button" onclick="toggleFilter(event)">Ores</button>
+  <button class="filter-button" onclick="toggleFilter(event)">Plants</button>
+  <button class="filter-button" onclick="toggleFilter(event)">Spices</button>
+  <button class="filter-button" onclick="toggleFilter(event)">Stone</button>
+  <button class="filter-button" onclick="toggleFilter(event)">Trees</button>
+  <button class="filter-button" onclick="toggleFilter(event)">Vegetables</button>
+</div>
+
+<input type="text" id="searchBar" class="search-bar" oninput="filterItems()" placeholder="Search items...">
+
+<div class="container" id="itemContainer"></div>
+
+<script>
+  const groupedItems = {
+  "alloys": [
+    {
+      "product": "bronze",
+      "description": "golden-brown with a smooth, weathered finish, a blend of copper and tin; durable and used in traditional weaponry.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Bronze",
+      "import_markets": [
+        {
+          "city": "Calimport",
+          "rating": 2
+        },
+        {
+          "city": "Espar",
+          "rating": 2
+        },
+        {
+          "city": "Eltabbar",
+          "rating": 3
+        },
+        {
+          "city": "Elmwood",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Melvaunt",
+          "rating": 4
+        },
+        {
+          "city": "Almorel",
+          "rating": 3
+        },
+        {
+          "city": "Waterdeep",
+          "rating": 2
+        },
+        {
+          "city": "Scornubel",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "electrum",
+      "description": "pale gold with subtle silver tones, highly valued for coinage and jewelry, symbolizing wealth.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Electrum",
+      "import_markets": [
+        {
+          "city": "Hlondeth",
+          "rating": 4
+        },
+        {
+          "city": "Port Kir",
+          "rating": 5
+        },
+        {
+          "city": "Tashluta",
+          "rating": 4
+        },
+        {
+          "city": "Sarshel",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Calimport",
+          "rating": 2
+        },
+        {
+          "city": "Procampur",
+          "rating": 2
+        },
+        {
+          "city": "Yhaunn",
+          "rating": 5
+        },
+        {
+          "city": "Thentia",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "steel",
+      "description": "silvery-gray and polished with a hint of bluish hue, strong and versatile, the backbone of armor and weaponry.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Steel",
+      "import_markets": [
+        {
+          "city": "Murann",
+          "rating": 3
+        },
+        {
+          "city": "Reth",
+          "rating": 4
+        },
+        {
+          "city": "Sheirtalar",
+          "rating": 5
+        },
+        {
+          "city": "Mourktar",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Hulburg",
+          "rating": 4
+        },
+        {
+          "city": "Reth",
+          "rating": 5
+        },
+        {
+          "city": "Citadel Felbarr",
+          "rating": 5
+        },
+        {
+          "city": "Derlusk",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "telstang",
+      "description": "semi-transparent bluish-green alloy infused with elemental essence, amplifying air and water magics.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Telstang",
+      "import_markets": [
+        {
+          "city": "Evereska",
+          "rating": 3
+        },
+        {
+          "city": "Myratma",
+          "rating": 5
+        },
+        {
+          "city": "Telflamm",
+          "rating": 3
+        },
+        {
+          "city": "Everlund",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Innarlith",
+          "rating": 2
+        },
+        {
+          "city": "Leuthilspar",
+          "rating": 2
+        },
+        {
+          "city": "Almorel",
+          "rating": 4
+        },
+        {
+          "city": "Arabel",
+          "rating": 3
+        }
+      ]
+    }
+  ],
+  "crop": [
+    {
+      "product": "barley",
+      "description": "similar to wheat, used in bread, porridge, and brewing.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Barley",
+      "import_markets": [
+        {
+          "city": "Murann",
+          "rating": 5
+        },
+        {
+          "city": "Reth",
+          "rating": 4
+        },
+        {
+          "city": "Airspur",
+          "rating": 3
+        },
+        {
+          "city": "Baldur\u2019s Gate",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Sheirtalar",
+          "rating": 5
+        },
+        {
+          "city": "Murann",
+          "rating": 4
+        },
+        {
+          "city": "Longsaddle",
+          "rating": 5
+        },
+        {
+          "city": "Skullport",
+          "rating": 2
+        }
+      ]
+    },
+    {
+      "product": "corn",
+      "description": "tall stalks with yellow kernels; eaten fresh or dried.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Corn",
+      "import_markets": [
+        {
+          "city": "Citadel Felbarr",
+          "rating": 4
+        },
+        {
+          "city": "Urmlaspyr",
+          "rating": 4
+        },
+        {
+          "city": "Eltabbar",
+          "rating": 3
+        },
+        {
+          "city": "Westgate",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Daerlun",
+          "rating": 4
+        },
+        {
+          "city": "Berdusk",
+          "rating": 3
+        },
+        {
+          "city": "Saelmur",
+          "rating": 3
+        },
+        {
+          "city": "Esmeltaran",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "rice",
+      "description": "tiny, white grains harvested from grass-like stalks; a staple in many regions.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Rice",
+      "import_markets": [
+        {
+          "city": "Highmoon",
+          "rating": 3
+        },
+        {
+          "city": "Memnon",
+          "rating": 5
+        },
+        {
+          "city": "Thentia",
+          "rating": 4
+        },
+        {
+          "city": "Yhaunn",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Triboar",
+          "rating": 2
+        },
+        {
+          "city": "Sarshel",
+          "rating": 3
+        },
+        {
+          "city": "Innarlith",
+          "rating": 2
+        },
+        {
+          "city": "Port Kir",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "wheat",
+      "description": "golden heads of grain, ground into flour for bread and pastries.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Wheat",
+      "import_markets": [
+        {
+          "city": "Neverwinter",
+          "rating": 5
+        },
+        {
+          "city": "Nashkel",
+          "rating": 2
+        },
+        {
+          "city": "Yartar",
+          "rating": 2
+        },
+        {
+          "city": "Raven\u2019s Bluff",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Highmoon",
+          "rating": 5
+        },
+        {
+          "city": "Thentia",
+          "rating": 2
+        },
+        {
+          "city": "Baldur\u2019s Gate",
+          "rating": 3
+        },
+        {
+          "city": "Port Kir",
+          "rating": 2
+        }
+      ]
+    }
+  ],
+  "gems": [
+    {
+      "product": "agate",
+      "description": "banded with earthy colors, often semi-translucent with layers of white, brown, and green; prized for decorative carvings.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Agate",
+      "import_markets": [
+        {
+          "city": "Menzoberranzan",
+          "rating": 5
+        },
+        {
+          "city": "Melvaunt",
+          "rating": 2
+        },
+        {
+          "city": "Innarlith",
+          "rating": 2
+        },
+        {
+          "city": "Saerloon",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Eltabbar",
+          "rating": 4
+        },
+        {
+          "city": "Delzimmer",
+          "rating": 2
+        },
+        {
+          "city": "Saelmur",
+          "rating": 3
+        },
+        {
+          "city": "Mourktar",
+          "rating": 2
+        }
+      ]
+    },
+    {
+      "product": "amber",
+      "description": "golden-brown and semi-transparent, sometimes with trapped organic material, prized for its warm, resinous appearance.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Amber",
+      "import_markets": [
+        {
+          "city": "Tashluta",
+          "rating": 5
+        },
+        {
+          "city": "Daerlun",
+          "rating": 2
+        },
+        {
+          "city": "Memnon",
+          "rating": 2
+        },
+        {
+          "city": "Westgate",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Port Kir",
+          "rating": 3
+        },
+        {
+          "city": "Sheirtalar",
+          "rating": 3
+        },
+        {
+          "city": "Berdusk",
+          "rating": 2
+        },
+        {
+          "city": "Memnon",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "amethyst",
+      "description": "purple, transparent, and often faceted, symbolizing calm and clarity, used in magical wards.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Amethyst",
+      "import_markets": [
+        {
+          "city": "Selgaunt",
+          "rating": 5
+        },
+        {
+          "city": "Innarlith",
+          "rating": 3
+        },
+        {
+          "city": "Zazesspur",
+          "rating": 3
+        },
+        {
+          "city": "Evereska",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Airspur",
+          "rating": 3
+        },
+        {
+          "city": "Saerloon",
+          "rating": 3
+        },
+        {
+          "city": "Hluthvar",
+          "rating": 5
+        },
+        {
+          "city": "Crimmor",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "aquamarine",
+      "description": "light blue, transparent, with a clear shine; used in divination and water magic.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Aquamarine",
+      "import_markets": [
+        {
+          "city": "Yartar",
+          "rating": 4
+        },
+        {
+          "city": "Raven\u2019s Bluff",
+          "rating": 2
+        },
+        {
+          "city": "Sheirtalar",
+          "rating": 4
+        },
+        {
+          "city": "Everlund",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Neverwinter",
+          "rating": 3
+        },
+        {
+          "city": "Longsaddle",
+          "rating": 5
+        },
+        {
+          "city": "Bezantur",
+          "rating": 2
+        },
+        {
+          "city": "Murann",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "azurite",
+      "description": "deep, rich blue with occasional light striations, symbolizing wisdom and often used in clerical settings.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Azurite",
+      "import_markets": [
+        {
+          "city": "Sheirtalar",
+          "rating": 5
+        },
+        {
+          "city": "Daggerford",
+          "rating": 2
+        },
+        {
+          "city": "Scornubel",
+          "rating": 4
+        },
+        {
+          "city": "Procampur",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Sundabar",
+          "rating": 2
+        },
+        {
+          "city": "Bezantur",
+          "rating": 5
+        },
+        {
+          "city": "Menzoberranzan",
+          "rating": 2
+        },
+        {
+          "city": "Espar",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "black sapphire",
+      "description": "dark blue-black, opaque with a faint shine, symbolizing mystery and strength.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Black_Sapphire",
+      "import_markets": [
+        {
+          "city": "Citadel Felbarr",
+          "rating": 3
+        },
+        {
+          "city": "Heldapan",
+          "rating": 3
+        },
+        {
+          "city": "Port Kir",
+          "rating": 5
+        },
+        {
+          "city": "Citadel Adbar",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Myratma",
+          "rating": 2
+        },
+        {
+          "city": "Halarahh",
+          "rating": 3
+        },
+        {
+          "city": "Neverwinter",
+          "rating": 4
+        },
+        {
+          "city": "Phlan",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "bloodstone",
+      "description": "dark red mineral that appears as though stained with blood, rumored to resonate with battle energies.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Bloodstone",
+      "import_markets": [
+        {
+          "city": "Zazesspur",
+          "rating": 5
+        },
+        {
+          "city": "Iriaebor",
+          "rating": 3
+        },
+        {
+          "city": "Saerloon",
+          "rating": 4
+        },
+        {
+          "city": "Longsaddle",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Eltabbar",
+          "rating": 3
+        },
+        {
+          "city": "Crimmor",
+          "rating": 4
+        },
+        {
+          "city": "Proskur",
+          "rating": 2
+        },
+        {
+          "city": "Esmeltaran",
+          "rating": 2
+        }
+      ]
+    },
+    {
+      "product": "carnelian",
+      "description": "bright red-orange, translucent and glossy, often used in amulets for courage and protection.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Carnelian",
+      "import_markets": [
+        {
+          "city": "Loudwater",
+          "rating": 2
+        },
+        {
+          "city": "Port Kir",
+          "rating": 2
+        },
+        {
+          "city": "Tashluta",
+          "rating": 3
+        },
+        {
+          "city": "Saelmur",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Mirabar",
+          "rating": 4
+        },
+        {
+          "city": "Skuld",
+          "rating": 2
+        },
+        {
+          "city": "Memnon",
+          "rating": 4
+        },
+        {
+          "city": "Proskur",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "chalcedony",
+      "description": "smooth and waxy, often in muted colors like gray or blue, valued for its healing properties.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Chalcedony",
+      "import_markets": [
+        {
+          "city": "Nashkel",
+          "rating": 2
+        },
+        {
+          "city": "Suzail",
+          "rating": 2
+        },
+        {
+          "city": "Halarahh",
+          "rating": 5
+        },
+        {
+          "city": "Citadel Adbar",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Messemprar",
+          "rating": 5
+        },
+        {
+          "city": "Yhaunn",
+          "rating": 4
+        },
+        {
+          "city": "Marsember",
+          "rating": 5
+        },
+        {
+          "city": "Ordulin",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "diamond",
+      "description": "clear, highly reflective, with a brilliant sparkle, symbolizing purity and strength.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Diamond",
+      "import_markets": [
+        {
+          "city": "Scornubel",
+          "rating": 5
+        },
+        {
+          "city": "Westgate",
+          "rating": 5
+        },
+        {
+          "city": "Hillsfar",
+          "rating": 3
+        },
+        {
+          "city": "Tsurlagol",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Longsaddle",
+          "rating": 2
+        },
+        {
+          "city": "Selgaunt",
+          "rating": 4
+        },
+        {
+          "city": "Suldolphor",
+          "rating": 3
+        },
+        {
+          "city": "Westgate",
+          "rating": 2
+        }
+      ]
+    },
+    {
+      "product": "emerald",
+      "description": "vivid green, transparent, and valuable, symbolizing nature and rebirth.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Emerald",
+      "import_markets": [
+        {
+          "city": "Athkatla",
+          "rating": 4
+        },
+        {
+          "city": "Mourktar",
+          "rating": 2
+        },
+        {
+          "city": "Longsaddle",
+          "rating": 4
+        },
+        {
+          "city": "Memnon",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Telflamm",
+          "rating": 2
+        },
+        {
+          "city": "Proskur",
+          "rating": 2
+        },
+        {
+          "city": "Saelmur",
+          "rating": 2
+        },
+        {
+          "city": "Elturel",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "garnet",
+      "description": "deep red, smooth or faceted, with a glossy surface; often used in jewelry and talismans.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Garnet",
+      "import_markets": [
+        {
+          "city": "Longsaddle",
+          "rating": 3
+        },
+        {
+          "city": "Elmwood",
+          "rating": 4
+        },
+        {
+          "city": "Baldur\u2019s Gate",
+          "rating": 4
+        },
+        {
+          "city": "Waterdeep",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Skuld",
+          "rating": 2
+        },
+        {
+          "city": "Cimbar",
+          "rating": 2
+        },
+        {
+          "city": "Tsurlagol",
+          "rating": 2
+        },
+        {
+          "city": "Shadowdale",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "jade",
+      "description": "green, opaque, smooth and polished, symbolizing health and longevity.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Jade",
+      "import_markets": [
+        {
+          "city": "Reth",
+          "rating": 3
+        },
+        {
+          "city": "Crimmor",
+          "rating": 4
+        },
+        {
+          "city": "Daggerford",
+          "rating": 3
+        },
+        {
+          "city": "Sheirtalar",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Evereska",
+          "rating": 2
+        },
+        {
+          "city": "Eversult",
+          "rating": 4
+        },
+        {
+          "city": "Mirabar",
+          "rating": 5
+        },
+        {
+          "city": "Melvaunt",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "jacinth",
+      "description": "fiery orange-red, highly prized and often enchanted.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Jacinth",
+      "import_markets": [
+        {
+          "city": "Citadel Felbarr",
+          "rating": 3
+        },
+        {
+          "city": "Athkatla",
+          "rating": 4
+        },
+        {
+          "city": "Urmlaspyr",
+          "rating": 4
+        },
+        {
+          "city": "Daggerford",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Mirabar",
+          "rating": 5
+        },
+        {
+          "city": "Neverwinter",
+          "rating": 3
+        },
+        {
+          "city": "Saerloon",
+          "rating": 2
+        },
+        {
+          "city": "Yhaunn",
+          "rating": 2
+        }
+      ]
+    },
+    {
+      "product": "lapis lazuli",
+      "description": "deep blue with flecks of gold pyrite, highly prized for decoration and as a symbol of royalty.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Lapis_Lazuli",
+      "import_markets": [
+        {
+          "city": "Raven\u2019s Bluff",
+          "rating": 4
+        },
+        {
+          "city": "Proskur",
+          "rating": 3
+        },
+        {
+          "city": "Tsurlagol",
+          "rating": 4
+        },
+        {
+          "city": "Waterdeep",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Eltabbar",
+          "rating": 5
+        },
+        {
+          "city": "Heldapan",
+          "rating": 5
+        },
+        {
+          "city": "Espar",
+          "rating": 2
+        },
+        {
+          "city": "Baldur\u2019s Gate",
+          "rating": 2
+        }
+      ]
+    },
+    {
+      "product": "malachite",
+      "description": "bright green with dark swirling striations, known for its intense color and use in jewelry.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Malachite",
+      "import_markets": [
+        {
+          "city": "Triboar",
+          "rating": 2
+        },
+        {
+          "city": "Mourktar",
+          "rating": 3
+        },
+        {
+          "city": "Urmlaspyr",
+          "rating": 2
+        },
+        {
+          "city": "Tashluta",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Phlan",
+          "rating": 4
+        },
+        {
+          "city": "Tashluta",
+          "rating": 2
+        },
+        {
+          "city": "Shadowdale",
+          "rating": 2
+        },
+        {
+          "city": "Heldapan",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "moonstone",
+      "description": "opalescent, with a shimmering blue or rainbow glow, used in divination and lunar magic.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Moonstone",
+      "import_markets": [
+        {
+          "city": "Heldapan",
+          "rating": 3
+        },
+        {
+          "city": "Neverwinter",
+          "rating": 2
+        },
+        {
+          "city": "Memnon",
+          "rating": 4
+        },
+        {
+          "city": "Mintarn",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Myratma",
+          "rating": 3
+        },
+        {
+          "city": "Port Kir",
+          "rating": 4
+        },
+        {
+          "city": "Nashkel",
+          "rating": 3
+        },
+        {
+          "city": "Leuthilspar",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "obsidian",
+      "description": "glossy, black volcanic glass, brittle but razor-sharp, often used for primitive tools and weapons.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Obsidian",
+      "import_markets": [
+        {
+          "city": "Evereska",
+          "rating": 4
+        },
+        {
+          "city": "Yhaunn",
+          "rating": 5
+        },
+        {
+          "city": "Suldolphor",
+          "rating": 4
+        },
+        {
+          "city": "Starmantle",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Halarahh",
+          "rating": 2
+        },
+        {
+          "city": "Proskur",
+          "rating": 4
+        },
+        {
+          "city": "Reth",
+          "rating": 2
+        },
+        {
+          "city": "Delzimmer",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "onyx",
+      "description": "pure black or banded, with a matte to glossy finish; used in protection amulets.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Onyx",
+      "import_markets": [
+        {
+          "city": "Evereska",
+          "rating": 5
+        },
+        {
+          "city": "Silverymoon",
+          "rating": 4
+        },
+        {
+          "city": "Espar",
+          "rating": 5
+        },
+        {
+          "city": "Hluthvar",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Scornubel",
+          "rating": 5
+        },
+        {
+          "city": "Myratma",
+          "rating": 3
+        },
+        {
+          "city": "Sundabar",
+          "rating": 4
+        },
+        {
+          "city": "Ordulin",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "opal",
+      "description": "shimmering stone with rainbow-like hues; prized for its beauty and magical qualities.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Opal",
+      "import_markets": [
+        {
+          "city": "Iriaebor",
+          "rating": 4
+        },
+        {
+          "city": "Skuld",
+          "rating": 5
+        },
+        {
+          "city": "Triboar",
+          "rating": 5
+        },
+        {
+          "city": "Esmeltaran",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Scornubel",
+          "rating": 4
+        },
+        {
+          "city": "Mirabar",
+          "rating": 3
+        },
+        {
+          "city": "Myratma",
+          "rating": 5
+        },
+        {
+          "city": "Skuld",
+          "rating": 2
+        }
+      ]
+    },
+    {
+      "product": "pearl",
+      "description": "smooth, lustrous, white or cream spheres formed in shells, symbolizing purity and used in elegant jewelry.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Pearl",
+      "import_markets": [
+        {
+          "city": "Menzoberranzan",
+          "rating": 5
+        },
+        {
+          "city": "Innarlith",
+          "rating": 5
+        },
+        {
+          "city": "Nashkel",
+          "rating": 4
+        },
+        {
+          "city": "Berdusk",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Cathtyr",
+          "rating": 5
+        },
+        {
+          "city": "Selgaunt",
+          "rating": 5
+        },
+        {
+          "city": "Eltabbar",
+          "rating": 2
+        },
+        {
+          "city": "Murann",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "peridot",
+      "description": "light green, transparent, with a glassy finish; associated with abundance and protection.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Peridot",
+      "import_markets": [
+        {
+          "city": "Procampur",
+          "rating": 3
+        },
+        {
+          "city": "Highmoon",
+          "rating": 5
+        },
+        {
+          "city": "Thentia",
+          "rating": 3
+        },
+        {
+          "city": "Skuld",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Esmeltaran",
+          "rating": 3
+        },
+        {
+          "city": "Nashkel",
+          "rating": 2
+        },
+        {
+          "city": "Elturel",
+          "rating": 2
+        },
+        {
+          "city": "Thentia",
+          "rating": 2
+        }
+      ]
+    },
+    {
+      "product": "ruby",
+      "description": "deep red, transparent, and glossy, symbolizing passion and power.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Ruby",
+      "import_markets": [
+        {
+          "city": "Urmlaspyr",
+          "rating": 2
+        },
+        {
+          "city": "Westgate",
+          "rating": 2
+        },
+        {
+          "city": "Telflamm",
+          "rating": 5
+        },
+        {
+          "city": "Port Kir",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Mirabar",
+          "rating": 5
+        },
+        {
+          "city": "Everlund",
+          "rating": 2
+        },
+        {
+          "city": "Arrabar",
+          "rating": 4
+        },
+        {
+          "city": "Innarlith",
+          "rating": 2
+        }
+      ]
+    },
+    {
+      "product": "sapphire",
+      "description": "deep blue, transparent, and reflective, symbolizing wisdom and loyalty.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Sapphire",
+      "import_markets": [
+        {
+          "city": "Arabel",
+          "rating": 2
+        },
+        {
+          "city": "Triboar",
+          "rating": 3
+        },
+        {
+          "city": "Proskur",
+          "rating": 5
+        },
+        {
+          "city": "Zazesspur",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Urmlaspyr",
+          "rating": 2
+        },
+        {
+          "city": "Telflamm",
+          "rating": 5
+        },
+        {
+          "city": "Triboar",
+          "rating": 2
+        },
+        {
+          "city": "Shadowdale",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "star ruby",
+      "description": "red with a shimmering star-like effect inside, prized in divination.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Star_Ruby",
+      "import_markets": [
+        {
+          "city": "Airspur",
+          "rating": 4
+        },
+        {
+          "city": "Longsaddle",
+          "rating": 5
+        },
+        {
+          "city": "Mintarn",
+          "rating": 2
+        },
+        {
+          "city": "Suldolphor",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Scornubel",
+          "rating": 5
+        },
+        {
+          "city": "Silverymoon",
+          "rating": 2
+        },
+        {
+          "city": "Highmoon",
+          "rating": 4
+        },
+        {
+          "city": "Thentia",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "sunstone",
+      "description": "sparkling orange or red with a warm glow; symbolizing vitality and energy.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Sunstone",
+      "import_markets": [
+        {
+          "city": "Highmoon",
+          "rating": 3
+        },
+        {
+          "city": "Silverymoon",
+          "rating": 5
+        },
+        {
+          "city": "Suzail",
+          "rating": 3
+        },
+        {
+          "city": "Halarahh",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Mintarn",
+          "rating": 2
+        },
+        {
+          "city": "Hulburg",
+          "rating": 2
+        },
+        {
+          "city": "Telflamm",
+          "rating": 5
+        },
+        {
+          "city": "Urmlaspyr",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "topaz",
+      "description": "clear or yellow, with a glass-like shine, symbolizing warmth and energy.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Topaz",
+      "import_markets": [
+        {
+          "city": "Delzimmer",
+          "rating": 5
+        },
+        {
+          "city": "Marsember",
+          "rating": 3
+        },
+        {
+          "city": "Sarshel",
+          "rating": 4
+        },
+        {
+          "city": "Neverwinter",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Citadel Adbar",
+          "rating": 4
+        },
+        {
+          "city": "Procampur",
+          "rating": 3
+        },
+        {
+          "city": "Cathtyr",
+          "rating": 5
+        },
+        {
+          "city": "Selgaunt",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "turquoise",
+      "description": "light blue-green with dark veins, symbolizing health and protection, commonly found in warmer regions.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Turquoise",
+      "import_markets": [
+        {
+          "city": "Melvaunt",
+          "rating": 4
+        },
+        {
+          "city": "Innarlith",
+          "rating": 4
+        },
+        {
+          "city": "Silverymoon",
+          "rating": 5
+        },
+        {
+          "city": "Tsurlagol",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Eltabbar",
+          "rating": 4
+        },
+        {
+          "city": "Daerlun",
+          "rating": 4
+        },
+        {
+          "city": "Triboar",
+          "rating": 2
+        },
+        {
+          "city": "Murann",
+          "rating": 5
+        }
+      ]
+    }
+  ],
+  "fiber": [
+    {
+      "product": "agave",
+      "description": "thick green leaves with long fibers; used for coarse textiles similar to burlap.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Agave",
+      "import_markets": [
+        {
+          "city": "Cathtyr",
+          "rating": 5
+        },
+        {
+          "city": "Derlusk",
+          "rating": 4
+        },
+        {
+          "city": "Tsurlagol",
+          "rating": 2
+        },
+        {
+          "city": "Reth",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Suldolphor",
+          "rating": 2
+        },
+        {
+          "city": "Saerloon",
+          "rating": 3
+        },
+        {
+          "city": "Memnon",
+          "rating": 2
+        },
+        {
+          "city": "Longsaddle",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "bamboo",
+      "description": "hollow green stalks, often split into fibers for weaving mats and textiles.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Bamboo",
+      "import_markets": [
+        {
+          "city": "Mirabar",
+          "rating": 4
+        },
+        {
+          "city": "Triboar",
+          "rating": 3
+        },
+        {
+          "city": "Esmeltaran",
+          "rating": 4
+        },
+        {
+          "city": "Heldapan",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Darromar",
+          "rating": 5
+        },
+        {
+          "city": "Telflamm",
+          "rating": 5
+        },
+        {
+          "city": "Espar",
+          "rating": 5
+        },
+        {
+          "city": "Starmantle",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "cotton",
+      "description": "fluffy white fibers from seed pods; spun into soft, breathable fabric.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Cotton",
+      "import_markets": [
+        {
+          "city": "Citadel Felbarr",
+          "rating": 5
+        },
+        {
+          "city": "Innarlith",
+          "rating": 2
+        },
+        {
+          "city": "Ordulin",
+          "rating": 5
+        },
+        {
+          "city": "Delzimmer",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Triboar",
+          "rating": 3
+        },
+        {
+          "city": "Reth",
+          "rating": 2
+        },
+        {
+          "city": "Calimport",
+          "rating": 4
+        },
+        {
+          "city": "Athkatla",
+          "rating": 2
+        }
+      ]
+    },
+    {
+      "product": "flax",
+      "description": "soft, pale yellow fibers from stalks; spun into linen for lightweight clothing.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Flax",
+      "import_markets": [
+        {
+          "city": "Elturel",
+          "rating": 2
+        },
+        {
+          "city": "Highmoon",
+          "rating": 2
+        },
+        {
+          "city": "Innarlith",
+          "rating": 4
+        },
+        {
+          "city": "Tsurlagol",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Lyrabar",
+          "rating": 5
+        },
+        {
+          "city": "Darromar",
+          "rating": 3
+        },
+        {
+          "city": "Evereska",
+          "rating": 5
+        },
+        {
+          "city": "Everlund",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "hemp",
+      "description": "long, strong fibers from green stalks, durable and used for ropes and cloth.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Hemp",
+      "import_markets": [
+        {
+          "city": "Yhaunn",
+          "rating": 3
+        },
+        {
+          "city": "Calimport",
+          "rating": 2
+        },
+        {
+          "city": "Messemprar",
+          "rating": 3
+        },
+        {
+          "city": "Selgaunt",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Athkatla",
+          "rating": 4
+        },
+        {
+          "city": "Arabel",
+          "rating": 5
+        },
+        {
+          "city": "Saerloon",
+          "rating": 2
+        },
+        {
+          "city": "Proskur",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "jute",
+      "description": "rough, yellowish-brown fibers, often used in sacks and coarse textiles.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Jute",
+      "import_markets": [
+        {
+          "city": "Athkatla",
+          "rating": 4
+        },
+        {
+          "city": "Iriaebor",
+          "rating": 5
+        },
+        {
+          "city": "Yartar",
+          "rating": 4
+        },
+        {
+          "city": "Zazesspur",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Yartar",
+          "rating": 4
+        },
+        {
+          "city": "Espar",
+          "rating": 4
+        },
+        {
+          "city": "Citadel Felbarr",
+          "rating": 5
+        },
+        {
+          "city": "Tsurlagol",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "nettle",
+      "description": "green, fibrous stalks that are processed to remove stinging hairs; used in rustic cloth.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Nettle",
+      "import_markets": [
+        {
+          "city": "Eltabbar",
+          "rating": 3
+        },
+        {
+          "city": "Urmlaspyr",
+          "rating": 3
+        },
+        {
+          "city": "Suzail",
+          "rating": 4
+        },
+        {
+          "city": "Tsurlagol",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Daerlun",
+          "rating": 5
+        },
+        {
+          "city": "Daggerford",
+          "rating": 5
+        },
+        {
+          "city": "Calimport",
+          "rating": 2
+        },
+        {
+          "city": "Murann",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "ramie",
+      "description": "silky white fibers from stalks; strong and used in lightweight, fine textiles.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Ramie",
+      "import_markets": [
+        {
+          "city": "Westgate",
+          "rating": 2
+        },
+        {
+          "city": "Elmwood",
+          "rating": 4
+        },
+        {
+          "city": "Everlund",
+          "rating": 2
+        },
+        {
+          "city": "Airspur",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Skuld",
+          "rating": 4
+        },
+        {
+          "city": "Esmeltaran",
+          "rating": 5
+        },
+        {
+          "city": "Eltabbar",
+          "rating": 3
+        },
+        {
+          "city": "Starmantle",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "silk",
+      "description": "soft, white or golden threads from silkworms; valued for its smooth, luxurious texture.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Silk",
+      "import_markets": [
+        {
+          "city": "Shadowdale",
+          "rating": 3
+        },
+        {
+          "city": "Espar",
+          "rating": 2
+        },
+        {
+          "city": "Starmantle",
+          "rating": 2
+        },
+        {
+          "city": "Menzoberranzan",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Marsember",
+          "rating": 2
+        },
+        {
+          "city": "Memnon",
+          "rating": 4
+        },
+        {
+          "city": "Daggerford",
+          "rating": 4
+        },
+        {
+          "city": "Telflamm",
+          "rating": 5
+        }
+      ]
+    }
+  ],
+  "fruit": [
+    {
+      "product": "apples",
+      "description": "red, green, or yellow, crisp and juicy; widely grown and versatile in cooking.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Apples",
+      "import_markets": [
+        {
+          "city": "Innarlith",
+          "rating": 5
+        },
+        {
+          "city": "Tashluta",
+          "rating": 5
+        },
+        {
+          "city": "Menzoberranzan",
+          "rating": 2
+        },
+        {
+          "city": "Airspur",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Selgaunt",
+          "rating": 5
+        },
+        {
+          "city": "Arabel",
+          "rating": 3
+        },
+        {
+          "city": "Derlusk",
+          "rating": 5
+        },
+        {
+          "city": "Heldapan",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "berries",
+      "description": "small, juicy fruits in various colors, commonly eaten fresh.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Berries",
+      "import_markets": [
+        {
+          "city": "Phlan",
+          "rating": 5
+        },
+        {
+          "city": "Telflamm",
+          "rating": 3
+        },
+        {
+          "city": "Nashkel",
+          "rating": 3
+        },
+        {
+          "city": "Memnon",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Yhaunn",
+          "rating": 2
+        },
+        {
+          "city": "Starmantle",
+          "rating": 5
+        },
+        {
+          "city": "Thentia",
+          "rating": 3
+        },
+        {
+          "city": "Menzoberranzan",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "cherries",
+      "description": "red, round, sweet or sour, often eaten fresh or in desserts.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Cherries",
+      "import_markets": [
+        {
+          "city": "Daerlun",
+          "rating": 5
+        },
+        {
+          "city": "Hillsfar",
+          "rating": 5
+        },
+        {
+          "city": "Mintarn",
+          "rating": 2
+        },
+        {
+          "city": "Calimport",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Melvaunt",
+          "rating": 4
+        },
+        {
+          "city": "Cimbar",
+          "rating": 5
+        },
+        {
+          "city": "Loudwater",
+          "rating": 5
+        },
+        {
+          "city": "Waterdeep",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "dates",
+      "description": "sweet, sticky, brown fruit often dried; grown in desert regions.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Dates",
+      "import_markets": [
+        {
+          "city": "Selgaunt",
+          "rating": 2
+        },
+        {
+          "city": "Menzoberranzan",
+          "rating": 5
+        },
+        {
+          "city": "Eltabbar",
+          "rating": 2
+        },
+        {
+          "city": "Athkatla",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Phlan",
+          "rating": 4
+        },
+        {
+          "city": "Leuthilspar",
+          "rating": 3
+        },
+        {
+          "city": "Telflamm",
+          "rating": 4
+        },
+        {
+          "city": "Menzoberranzan",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "figs",
+      "description": "soft fruits with purple or green skin and sweet pink flesh.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Figs",
+      "import_markets": [
+        {
+          "city": "Arabel",
+          "rating": 4
+        },
+        {
+          "city": "Silverymoon",
+          "rating": 4
+        },
+        {
+          "city": "Hlondeth",
+          "rating": 2
+        },
+        {
+          "city": "Innarlith",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Tashluta",
+          "rating": 4
+        },
+        {
+          "city": "Citadel Adbar",
+          "rating": 5
+        },
+        {
+          "city": "Elmwood",
+          "rating": 5
+        },
+        {
+          "city": "Nashkel",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "grapes",
+      "description": "small round berries, red, green, or purple; used fresh or for wine.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Grapes",
+      "import_markets": [
+        {
+          "city": "Silverymoon",
+          "rating": 3
+        },
+        {
+          "city": "Everlund",
+          "rating": 3
+        },
+        {
+          "city": "Almorel",
+          "rating": 3
+        },
+        {
+          "city": "Ordulin",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Hluthvar",
+          "rating": 4
+        },
+        {
+          "city": "Urmlaspyr",
+          "rating": 5
+        },
+        {
+          "city": "Bezantur",
+          "rating": 4
+        },
+        {
+          "city": "Phlan",
+          "rating": 2
+        }
+      ]
+    },
+    {
+      "product": "lemons",
+      "description": "yellow, sour, used for flavoring and preservation.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Lemons",
+      "import_markets": [
+        {
+          "city": "Daggerford",
+          "rating": 3
+        },
+        {
+          "city": "Lyrabar",
+          "rating": 2
+        },
+        {
+          "city": "Ordulin",
+          "rating": 2
+        },
+        {
+          "city": "Port Kir",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Citadel Adbar",
+          "rating": 3
+        },
+        {
+          "city": "Starmantle",
+          "rating": 2
+        },
+        {
+          "city": "Zazesspur",
+          "rating": 2
+        },
+        {
+          "city": "Delzimmer",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "melons",
+      "description": "large fruits with juicy, sweet flesh; includes watermelons and muskmelons.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Melons",
+      "import_markets": [
+        {
+          "city": "Suzail",
+          "rating": 5
+        },
+        {
+          "city": "Hulburg",
+          "rating": 5
+        },
+        {
+          "city": "Mirabar",
+          "rating": 5
+        },
+        {
+          "city": "Evereska",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Telflamm",
+          "rating": 3
+        },
+        {
+          "city": "Highmoon",
+          "rating": 3
+        },
+        {
+          "city": "Westgate",
+          "rating": 2
+        },
+        {
+          "city": "Athkatla",
+          "rating": 2
+        }
+      ]
+    },
+    {
+      "product": "olives",
+      "description": "small, green or black with a briny taste; eaten or pressed for oil.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Olives",
+      "import_markets": [
+        {
+          "city": "Cathtyr",
+          "rating": 2
+        },
+        {
+          "city": "Halarahh",
+          "rating": 5
+        },
+        {
+          "city": "Messemprar",
+          "rating": 5
+        },
+        {
+          "city": "Citadel Adbar",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Citadel Adbar",
+          "rating": 2
+        },
+        {
+          "city": "Mintarn",
+          "rating": 2
+        },
+        {
+          "city": "Hlondeth",
+          "rating": 3
+        },
+        {
+          "city": "Iriaebor",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "oranges",
+      "description": "bright orange, segmented fruit with a sweet-tart flavor.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Oranges",
+      "import_markets": [
+        {
+          "city": "Athkatla",
+          "rating": 5
+        },
+        {
+          "city": "Saerloon",
+          "rating": 5
+        },
+        {
+          "city": "Yhaunn",
+          "rating": 3
+        },
+        {
+          "city": "Zhentil Keep",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Phlan",
+          "rating": 5
+        },
+        {
+          "city": "Raven\u2019s Bluff",
+          "rating": 4
+        },
+        {
+          "city": "Cimbar",
+          "rating": 2
+        },
+        {
+          "city": "Crimmor",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "peaches",
+      "description": "soft fruits with fuzzy skin and sweet, juicy flesh.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Peaches",
+      "import_markets": [
+        {
+          "city": "Loudwater",
+          "rating": 5
+        },
+        {
+          "city": "Raven\u2019s Bluff",
+          "rating": 2
+        },
+        {
+          "city": "Arrabar",
+          "rating": 2
+        },
+        {
+          "city": "Reth",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Melvaunt",
+          "rating": 3
+        },
+        {
+          "city": "Selgaunt",
+          "rating": 4
+        },
+        {
+          "city": "Silverymoon",
+          "rating": 5
+        },
+        {
+          "city": "Ordulin",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "pears",
+      "description": "green or brown, soft and sweet; eaten fresh or preserved.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Pears",
+      "import_markets": [
+        {
+          "city": "Selgaunt",
+          "rating": 5
+        },
+        {
+          "city": "Eltabbar",
+          "rating": 4
+        },
+        {
+          "city": "Citadel Adbar",
+          "rating": 2
+        },
+        {
+          "city": "Sheirtalar",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Cimbar",
+          "rating": 3
+        },
+        {
+          "city": "Scornubel",
+          "rating": 3
+        },
+        {
+          "city": "Suzail",
+          "rating": 3
+        },
+        {
+          "city": "Triboar",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "plums",
+      "description": "dark purple or red with a juicy flesh; eaten fresh or dried as prunes.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Plums",
+      "import_markets": [
+        {
+          "city": "Skullport",
+          "rating": 2
+        },
+        {
+          "city": "Procampur",
+          "rating": 2
+        },
+        {
+          "city": "Crimmor",
+          "rating": 3
+        },
+        {
+          "city": "Cimbar",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Telflamm",
+          "rating": 4
+        },
+        {
+          "city": "Mourktar",
+          "rating": 3
+        },
+        {
+          "city": "Tashluta",
+          "rating": 4
+        },
+        {
+          "city": "Ordulin",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "pomegranates",
+      "description": "round, red fruits with juicy seeds inside.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Pomegranates",
+      "import_markets": [
+        {
+          "city": "Eversult",
+          "rating": 4
+        },
+        {
+          "city": "Almorel",
+          "rating": 4
+        },
+        {
+          "city": "Airspur",
+          "rating": 3
+        },
+        {
+          "city": "Esmeltaran",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Westgate",
+          "rating": 4
+        },
+        {
+          "city": "Selgaunt",
+          "rating": 2
+        },
+        {
+          "city": "Darromar",
+          "rating": 3
+        },
+        {
+          "city": "Derlusk",
+          "rating": 2
+        }
+      ]
+    },
+    {
+      "product": "quince",
+      "description": "yellow, hard, and fragrant; often cooked or used in preserves.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Quince",
+      "import_markets": [
+        {
+          "city": "Crimmor",
+          "rating": 2
+        },
+        {
+          "city": "Skuld",
+          "rating": 3
+        },
+        {
+          "city": "Citadel Felbarr",
+          "rating": 3
+        },
+        {
+          "city": "Zazesspur",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Citadel Felbarr",
+          "rating": 5
+        },
+        {
+          "city": "Sarshel",
+          "rating": 3
+        },
+        {
+          "city": "Menzoberranzan",
+          "rating": 4
+        },
+        {
+          "city": "Cimbar",
+          "rating": 5
+        }
+      ]
+    }
+  ],
+  "glass": [
+    {
+      "product": "abyssal glass",
+      "description": "dark and slightly translucent, with a smoky appearance and faint magical shimmer, often associated with infernal artifacts.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Abyssal_Glass",
+      "import_markets": [
+        {
+          "city": "Saerloon",
+          "rating": 5
+        },
+        {
+          "city": "Myratma",
+          "rating": 5
+        },
+        {
+          "city": "Citadel Adbar",
+          "rating": 5
+        },
+        {
+          "city": "Hulburg",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Neverwinter",
+          "rating": 3
+        },
+        {
+          "city": "Citadel Felbarr",
+          "rating": 2
+        },
+        {
+          "city": "Eltabbar",
+          "rating": 4
+        },
+        {
+          "city": "Loudwater",
+          "rating": 2
+        }
+      ]
+    },
+    {
+      "product": "amber",
+      "description": "golden-brown and semi-transparent, sometimes with trapped organic material, prized for its warm, resinous appearance.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Amber",
+      "import_markets": [
+        {
+          "city": "Westgate",
+          "rating": 2
+        },
+        {
+          "city": "Scornubel",
+          "rating": 5
+        },
+        {
+          "city": "Darromar",
+          "rating": 5
+        },
+        {
+          "city": "Reth",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Sheirtalar",
+          "rating": 4
+        },
+        {
+          "city": "Phlan",
+          "rating": 5
+        },
+        {
+          "city": "Yartar",
+          "rating": 5
+        },
+        {
+          "city": "Mourktar",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "crystal ice",
+      "description": "clear and glass-like, often with intricate frost patterns; resistant to melting and used in magical crafting.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Crystal_Ice",
+      "import_markets": [
+        {
+          "city": "Longsaddle",
+          "rating": 3
+        },
+        {
+          "city": "Crimmor",
+          "rating": 5
+        },
+        {
+          "city": "Zazesspur",
+          "rating": 2
+        },
+        {
+          "city": "Secomber",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Hluthvar",
+          "rating": 5
+        },
+        {
+          "city": "Telflamm",
+          "rating": 5
+        },
+        {
+          "city": "Ordulin",
+          "rating": 2
+        },
+        {
+          "city": "Hulburg",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "darkglass",
+      "description": "smoky black with a dull shine, commonly used in enchanted mirrors and to obscure light or vision.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Darkglass",
+      "import_markets": [
+        {
+          "city": "Murann",
+          "rating": 2
+        },
+        {
+          "city": "Saerloon",
+          "rating": 4
+        },
+        {
+          "city": "Eversult",
+          "rating": 4
+        },
+        {
+          "city": "Nashkel",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Menzoberranzan",
+          "rating": 2
+        },
+        {
+          "city": "Zazesspur",
+          "rating": 2
+        },
+        {
+          "city": "Darromar",
+          "rating": 3
+        },
+        {
+          "city": "Selgaunt",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "dlarun",
+      "description": "pale blue metal with a frosty sheen that feels cool to the touch, known for its resistance to heat.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Dlarun",
+      "import_markets": [
+        {
+          "city": "Urmlaspyr",
+          "rating": 3
+        },
+        {
+          "city": "Waterdeep",
+          "rating": 5
+        },
+        {
+          "city": "Hulburg",
+          "rating": 5
+        },
+        {
+          "city": "Melvaunt",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Espar",
+          "rating": 2
+        },
+        {
+          "city": "Reth",
+          "rating": 2
+        },
+        {
+          "city": "Waterdeep",
+          "rating": 4
+        },
+        {
+          "city": "Elmwood",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "obsidian",
+      "description": "glossy, black volcanic glass, brittle but razor-sharp, often used for primitive tools and weapons.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Obsidian",
+      "import_markets": [
+        {
+          "city": "Saerloon",
+          "rating": 4
+        },
+        {
+          "city": "Esmeltaran",
+          "rating": 3
+        },
+        {
+          "city": "Saelmur",
+          "rating": 4
+        },
+        {
+          "city": "Lyrabar",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Reth",
+          "rating": 5
+        },
+        {
+          "city": "Darromar",
+          "rating": 2
+        },
+        {
+          "city": "Secomber",
+          "rating": 3
+        },
+        {
+          "city": "Evereska",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "sandglass",
+      "description": "pale, rough-textured glass with a faint sandy sheen, durable and resistant to extreme heat and cold.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Sandglass",
+      "import_markets": [
+        {
+          "city": "Menzoberranzan",
+          "rating": 4
+        },
+        {
+          "city": "Eltabbar",
+          "rating": 4
+        },
+        {
+          "city": "Almorel",
+          "rating": 2
+        },
+        {
+          "city": "Hluthvar",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Cathtyr",
+          "rating": 2
+        },
+        {
+          "city": "Innarlith",
+          "rating": 4
+        },
+        {
+          "city": "Crimmor",
+          "rating": 3
+        },
+        {
+          "city": "Urmlaspyr",
+          "rating": 5
+        }
+      ]
+    }
+  ],
+  "ores": [
+    {
+      "product": "adamantine",
+      "description": "dark and nearly black, with impressive density and durability, often forged into weapons meant to last ages.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Adamantine",
+      "import_markets": [
+        {
+          "city": "Derlusk",
+          "rating": 4
+        },
+        {
+          "city": "Evereska",
+          "rating": 4
+        },
+        {
+          "city": "Longsaddle",
+          "rating": 4
+        },
+        {
+          "city": "Shadowdale",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Athkatla",
+          "rating": 4
+        },
+        {
+          "city": "Zhentil Keep",
+          "rating": 2
+        },
+        {
+          "city": "Memnon",
+          "rating": 3
+        },
+        {
+          "city": "Mintarn",
+          "rating": 2
+        }
+      ]
+    },
+    {
+      "product": "arandur",
+      "description": "deep, reflective blue with a striking metallic quality, known for its anti-scrying and anti-teleportation properties.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Arandur",
+      "import_markets": [
+        {
+          "city": "Secomber",
+          "rating": 2
+        },
+        {
+          "city": "Hluthvar",
+          "rating": 2
+        },
+        {
+          "city": "Hillsfar",
+          "rating": 2
+        },
+        {
+          "city": "Silverymoon",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Mintarn",
+          "rating": 2
+        },
+        {
+          "city": "Telflamm",
+          "rating": 3
+        },
+        {
+          "city": "Phlan",
+          "rating": 3
+        },
+        {
+          "city": "Sundabar",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "baatorian greensteel",
+      "description": "dark, sinister green with a near-black undertone and a wickedly sharp edge, favored in infernal weaponry.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Baatorian_Greensteel",
+      "import_markets": [
+        {
+          "city": "Mirabar",
+          "rating": 2
+        },
+        {
+          "city": "Zhentil Keep",
+          "rating": 3
+        },
+        {
+          "city": "Skullport",
+          "rating": 5
+        },
+        {
+          "city": "Tsurlagol",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Cathtyr",
+          "rating": 3
+        },
+        {
+          "city": "Everlund",
+          "rating": 2
+        },
+        {
+          "city": "Halarahh",
+          "rating": 4
+        },
+        {
+          "city": "Neverwinter",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "bloodstone",
+      "description": "dark red mineral that appears as though stained with blood, rumored to resonate with battle energies.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Bloodstone",
+      "import_markets": [
+        {
+          "city": "Yartar",
+          "rating": 2
+        },
+        {
+          "city": "Nashkel",
+          "rating": 2
+        },
+        {
+          "city": "Tsurlagol",
+          "rating": 4
+        },
+        {
+          "city": "Marsember",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Saerloon",
+          "rating": 5
+        },
+        {
+          "city": "Daerlun",
+          "rating": 2
+        },
+        {
+          "city": "Urmlaspyr",
+          "rating": 3
+        },
+        {
+          "city": "Telflamm",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "copper",
+      "description": "reddish-brown metal with a warm glow, develops a green patina over time, making it popular for decorative uses.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Copper",
+      "import_markets": [
+        {
+          "city": "Marsember",
+          "rating": 3
+        },
+        {
+          "city": "Halarahh",
+          "rating": 4
+        },
+        {
+          "city": "Innarlith",
+          "rating": 2
+        },
+        {
+          "city": "Iriaebor",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Memnon",
+          "rating": 3
+        },
+        {
+          "city": "Bezantur",
+          "rating": 5
+        },
+        {
+          "city": "Hulburg",
+          "rating": 4
+        },
+        {
+          "city": "Zazesspur",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "dlarun",
+      "description": "pale blue metal with a frosty sheen that feels cool to the touch, known for its resistance to heat.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Dlarun",
+      "import_markets": [
+        {
+          "city": "Elturel",
+          "rating": 4
+        },
+        {
+          "city": "Everlund",
+          "rating": 5
+        },
+        {
+          "city": "Reth",
+          "rating": 5
+        },
+        {
+          "city": "Suzail",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Yhaunn",
+          "rating": 4
+        },
+        {
+          "city": "Phlan",
+          "rating": 2
+        },
+        {
+          "city": "Sarshel",
+          "rating": 3
+        },
+        {
+          "city": "Westgate",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "gold",
+      "description": "lustrous, vibrant yellow, soft yet dense; a symbol of wealth and often used in magical artifacts.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Gold",
+      "import_markets": [
+        {
+          "city": "Procampur",
+          "rating": 2
+        },
+        {
+          "city": "Delzimmer",
+          "rating": 2
+        },
+        {
+          "city": "Mourktar",
+          "rating": 5
+        },
+        {
+          "city": "Hluthvar",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Neverwinter",
+          "rating": 4
+        },
+        {
+          "city": "Mintarn",
+          "rating": 3
+        },
+        {
+          "city": "Baldur\u2019s Gate",
+          "rating": 3
+        },
+        {
+          "city": "Silverymoon",
+          "rating": 2
+        }
+      ]
+    },
+    {
+      "product": "iron",
+      "description": "dark gray metal with a rugged, matte finish, often developing a reddish rust; strong but prone to corrosion when exposed to moisture.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Iron",
+      "import_markets": [
+        {
+          "city": "Delzimmer",
+          "rating": 3
+        },
+        {
+          "city": "Skuld",
+          "rating": 5
+        },
+        {
+          "city": "Sheirtalar",
+          "rating": 5
+        },
+        {
+          "city": "Baldur\u2019s Gate",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Everlund",
+          "rating": 3
+        },
+        {
+          "city": "Elturel",
+          "rating": 3
+        },
+        {
+          "city": "Sheirtalar",
+          "rating": 2
+        },
+        {
+          "city": "Arabel",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "mithral",
+      "description": "silvery-blue and incredibly lightweight; valued for its resilience and often found in the finest, most agile armors.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Mithral",
+      "import_markets": [
+        {
+          "city": "Bezantur",
+          "rating": 2
+        },
+        {
+          "city": "Hulburg",
+          "rating": 2
+        },
+        {
+          "city": "Esmeltaran",
+          "rating": 3
+        },
+        {
+          "city": "Iriaebor",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Heldapan",
+          "rating": 2
+        },
+        {
+          "city": "Mourktar",
+          "rating": 4
+        },
+        {
+          "city": "Yhaunn",
+          "rating": 5
+        },
+        {
+          "city": "Elturel",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "silver",
+      "description": "bright, reflective, and malleable; its polished surface captures light beautifully, often used in coinage and jewelry.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Silver",
+      "import_markets": [
+        {
+          "city": "Zhentil Keep",
+          "rating": 3
+        },
+        {
+          "city": "Shadowdale",
+          "rating": 5
+        },
+        {
+          "city": "Procampur",
+          "rating": 5
+        },
+        {
+          "city": "Athkatla",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Heldapan",
+          "rating": 5
+        },
+        {
+          "city": "Elmwood",
+          "rating": 2
+        },
+        {
+          "city": "Arabel",
+          "rating": 5
+        },
+        {
+          "city": "Delzimmer",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "tears of sel\u00fbne",
+      "description": "silvery-white with a soft, glowing quality, as if touched by moonlight; often associated with holy relics.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Tears_of_Sel\u00fbne",
+      "import_markets": [
+        {
+          "city": "Suzail",
+          "rating": 2
+        },
+        {
+          "city": "Hillsfar",
+          "rating": 4
+        },
+        {
+          "city": "Airspur",
+          "rating": 5
+        },
+        {
+          "city": "Mirabar",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Saelmur",
+          "rating": 4
+        },
+        {
+          "city": "Telflamm",
+          "rating": 3
+        },
+        {
+          "city": "Hluthvar",
+          "rating": 2
+        },
+        {
+          "city": "Elturel",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "tin",
+      "description": "silvery-gray and soft, with a subtle shine; usually alloyed with copper to create more durable bronze.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Tin",
+      "import_markets": [
+        {
+          "city": "Marsember",
+          "rating": 4
+        },
+        {
+          "city": "Athkatla",
+          "rating": 5
+        },
+        {
+          "city": "Calimport",
+          "rating": 5
+        },
+        {
+          "city": "Secomber",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Nashkel",
+          "rating": 5
+        },
+        {
+          "city": "Esmeltaran",
+          "rating": 3
+        },
+        {
+          "city": "Almorel",
+          "rating": 4
+        },
+        {
+          "city": "Skuld",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "meteoric iron",
+      "description": "dark gray, slightly magnetic with tiny embedded crystals, rumored to fall from the heavens and hold anti-magic properties.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Meteoric_Iron",
+      "import_markets": [
+        {
+          "city": "Evereska",
+          "rating": 4
+        },
+        {
+          "city": "Memnon",
+          "rating": 5
+        },
+        {
+          "city": "Highmoon",
+          "rating": 3
+        },
+        {
+          "city": "Eltabbar",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Sheirtalar",
+          "rating": 3
+        },
+        {
+          "city": "Starmantle",
+          "rating": 2
+        },
+        {
+          "city": "Derlusk",
+          "rating": 4
+        },
+        {
+          "city": "Tsurlagol",
+          "rating": 4
+        }
+      ]
+    }
+  ],
+  "plants": [
+    {
+      "product": "belladonna",
+      "description": "dark green leaves and purple-black berries; highly toxic, used in poisons and medicine.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Belladonna",
+      "import_markets": [
+        {
+          "city": "Athkatla",
+          "rating": 4
+        },
+        {
+          "city": "Longsaddle",
+          "rating": 5
+        },
+        {
+          "city": "Myratma",
+          "rating": 4
+        },
+        {
+          "city": "Berdusk",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Iriaebor",
+          "rating": 3
+        },
+        {
+          "city": "Port Kir",
+          "rating": 4
+        },
+        {
+          "city": "Tashluta",
+          "rating": 4
+        },
+        {
+          "city": "Menzoberranzan",
+          "rating": 2
+        }
+      ]
+    },
+    {
+      "product": "bitterleaf",
+      "description": "jagged green leaves with a sharp, bitter taste; sometimes used in herbal remedies.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Bitterleaf",
+      "import_markets": [
+        {
+          "city": "Hlondeth",
+          "rating": 3
+        },
+        {
+          "city": "Myratma",
+          "rating": 4
+        },
+        {
+          "city": "Procampur",
+          "rating": 5
+        },
+        {
+          "city": "Nashkel",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Ordulin",
+          "rating": 2
+        },
+        {
+          "city": "Phlan",
+          "rating": 2
+        },
+        {
+          "city": "Delzimmer",
+          "rating": 5
+        },
+        {
+          "city": "Saelmur",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "bloodroot",
+      "description": "red-stained root with small white flowers; used to stop bleeding and heal wounds.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Bloodroot",
+      "import_markets": [
+        {
+          "city": "Halarahh",
+          "rating": 5
+        },
+        {
+          "city": "Sundabar",
+          "rating": 5
+        },
+        {
+          "city": "Nashkel",
+          "rating": 4
+        },
+        {
+          "city": "Longsaddle",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Mourktar",
+          "rating": 4
+        },
+        {
+          "city": "Daerlun",
+          "rating": 4
+        },
+        {
+          "city": "Telflamm",
+          "rating": 4
+        },
+        {
+          "city": "Zhentil Keep",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "fireflower",
+      "description": "vibrant red petals with flame-like tips; used in potions to resist fire.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Fireflower",
+      "import_markets": [
+        {
+          "city": "Iriaebor",
+          "rating": 3
+        },
+        {
+          "city": "Nashkel",
+          "rating": 2
+        },
+        {
+          "city": "Loudwater",
+          "rating": 3
+        },
+        {
+          "city": "Melvaunt",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Calimport",
+          "rating": 4
+        },
+        {
+          "city": "Esmeltaran",
+          "rating": 5
+        },
+        {
+          "city": "Skullport",
+          "rating": 5
+        },
+        {
+          "city": "Hulburg",
+          "rating": 2
+        }
+      ]
+    },
+    {
+      "product": "gallowleaf",
+      "description": "twisted dark leaves with supernatural associations; used in necromantic potions.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Gallowleaf",
+      "import_markets": [
+        {
+          "city": "Sundabar",
+          "rating": 4
+        },
+        {
+          "city": "Leuthilspar",
+          "rating": 2
+        },
+        {
+          "city": "Bezantur",
+          "rating": 3
+        },
+        {
+          "city": "Murann",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Mourktar",
+          "rating": 5
+        },
+        {
+          "city": "Saerloon",
+          "rating": 5
+        },
+        {
+          "city": "Tsurlagol",
+          "rating": 4
+        },
+        {
+          "city": "Longsaddle",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "goldenstar",
+      "description": "bright yellow, star-shaped flowers; symbolizing luck and used in enchantments.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Goldenstar",
+      "import_markets": [
+        {
+          "city": "Suzail",
+          "rating": 4
+        },
+        {
+          "city": "Marsember",
+          "rating": 4
+        },
+        {
+          "city": "Saelmur",
+          "rating": 3
+        },
+        {
+          "city": "Everlund",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Daerlun",
+          "rating": 3
+        },
+        {
+          "city": "Hluthvar",
+          "rating": 4
+        },
+        {
+          "city": "Neverwinter",
+          "rating": 5
+        },
+        {
+          "city": "Starmantle",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "moonflower",
+      "description": "white flower that opens at night with a faint glow; often used in calming potions.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Moonflower",
+      "import_markets": [
+        {
+          "city": "Airspur",
+          "rating": 2
+        },
+        {
+          "city": "Loudwater",
+          "rating": 3
+        },
+        {
+          "city": "Evereska",
+          "rating": 4
+        },
+        {
+          "city": "Selgaunt",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Raven\u2019s Bluff",
+          "rating": 3
+        },
+        {
+          "city": "Hillsfar",
+          "rating": 4
+        },
+        {
+          "city": "Derlusk",
+          "rating": 2
+        },
+        {
+          "city": "Iriaebor",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "nightshade",
+      "description": "glossy leaves with purple flowers and black berries; dangerous and often used in alchemy.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Nightshade",
+      "import_markets": [
+        {
+          "city": "Longsaddle",
+          "rating": 4
+        },
+        {
+          "city": "Evereska",
+          "rating": 4
+        },
+        {
+          "city": "Airspur",
+          "rating": 5
+        },
+        {
+          "city": "Skullport",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Citadel Adbar",
+          "rating": 4
+        },
+        {
+          "city": "Suldolphor",
+          "rating": 3
+        },
+        {
+          "city": "Yhaunn",
+          "rating": 2
+        },
+        {
+          "city": "Secomber",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "silverthorn",
+      "description": "silver-green leaves with small thorns; used for its medicinal properties against infections.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Silverthorn",
+      "import_markets": [
+        {
+          "city": "Neverwinter",
+          "rating": 4
+        },
+        {
+          "city": "Heldapan",
+          "rating": 5
+        },
+        {
+          "city": "Cimbar",
+          "rating": 5
+        },
+        {
+          "city": "Suldolphor",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Cathtyr",
+          "rating": 4
+        },
+        {
+          "city": "Crimmor",
+          "rating": 2
+        },
+        {
+          "city": "Neverwinter",
+          "rating": 5
+        },
+        {
+          "city": "Saelmur",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "sunberry",
+      "description": "small, bright yellow berries with a tart taste; used in potions for vitality.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Sunberry",
+      "import_markets": [
+        {
+          "city": "Westgate",
+          "rating": 3
+        },
+        {
+          "city": "Hillsfar",
+          "rating": 2
+        },
+        {
+          "city": "Port Kir",
+          "rating": 4
+        },
+        {
+          "city": "Eversult",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Longsaddle",
+          "rating": 4
+        },
+        {
+          "city": "Innarlith",
+          "rating": 5
+        },
+        {
+          "city": "Zhentil Keep",
+          "rating": 5
+        },
+        {
+          "city": "Zazesspur",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "wyrmtongue",
+      "description": "a golden-yellow spice with a slight shimmer, used in potions and protective wards.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Wyrmtongue",
+      "import_markets": [
+        {
+          "city": "Sheirtalar",
+          "rating": 3
+        },
+        {
+          "city": "Athkatla",
+          "rating": 3
+        },
+        {
+          "city": "Menzoberranzan",
+          "rating": 2
+        },
+        {
+          "city": "Memnon",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Heldapan",
+          "rating": 2
+        },
+        {
+          "city": "Eltabbar",
+          "rating": 4
+        },
+        {
+          "city": "Longsaddle",
+          "rating": 2
+        },
+        {
+          "city": "Waterdeep",
+          "rating": 5
+        }
+      ]
+    }
+  ],
+  "stone": [
+    {
+      "product": "alabaster",
+      "description": "creamy white, fine-grained and slightly translucent, valued for carving and decoration.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Alabaster",
+      "import_markets": [
+        {
+          "city": "Memnon",
+          "rating": 5
+        },
+        {
+          "city": "Proskur",
+          "rating": 2
+        },
+        {
+          "city": "Hlondeth",
+          "rating": 3
+        },
+        {
+          "city": "Yartar",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Skullport",
+          "rating": 2
+        },
+        {
+          "city": "Sundabar",
+          "rating": 4
+        },
+        {
+          "city": "Suldolphor",
+          "rating": 2
+        },
+        {
+          "city": "Elturel",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "basalt",
+      "description": "dark, dense volcanic stone with a smooth finish, often used in defensive structures due to its durability.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Basalt",
+      "import_markets": [
+        {
+          "city": "Hillsfar",
+          "rating": 2
+        },
+        {
+          "city": "Iriaebor",
+          "rating": 5
+        },
+        {
+          "city": "Mirabar",
+          "rating": 5
+        },
+        {
+          "city": "Mintarn",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Sundabar",
+          "rating": 3
+        },
+        {
+          "city": "Everlund",
+          "rating": 4
+        },
+        {
+          "city": "Raven\u2019s Bluff",
+          "rating": 5
+        },
+        {
+          "city": "Hlondeth",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "darkstone",
+      "description": "jet black, absorbs light, and is cool to the touch; often used in stealth or concealment areas.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Darkstone",
+      "import_markets": [
+        {
+          "city": "Memnon",
+          "rating": 2
+        },
+        {
+          "city": "Thentia",
+          "rating": 5
+        },
+        {
+          "city": "Sheirtalar",
+          "rating": 4
+        },
+        {
+          "city": "Calimport",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Zhentil Keep",
+          "rating": 4
+        },
+        {
+          "city": "Mintarn",
+          "rating": 5
+        },
+        {
+          "city": "Hillsfar",
+          "rating": 3
+        },
+        {
+          "city": "Urmlaspyr",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "granite",
+      "description": "gray or pink speckled stone, very hard and often polished to a glossy finish, prized for durability in fortifications.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Granite",
+      "import_markets": [
+        {
+          "city": "Darromar",
+          "rating": 5
+        },
+        {
+          "city": "Derlusk",
+          "rating": 3
+        },
+        {
+          "city": "Waterdeep",
+          "rating": 4
+        },
+        {
+          "city": "Procampur",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Athkatla",
+          "rating": 4
+        },
+        {
+          "city": "Thentia",
+          "rating": 5
+        },
+        {
+          "city": "Menzoberranzan",
+          "rating": 3
+        },
+        {
+          "city": "Evereska",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "limestone",
+      "description": "soft, beige or pale gray with a slightly rough surface, easily carved, often used in building.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Limestone",
+      "import_markets": [
+        {
+          "city": "Urmlaspyr",
+          "rating": 5
+        },
+        {
+          "city": "Proskur",
+          "rating": 3
+        },
+        {
+          "city": "Delzimmer",
+          "rating": 5
+        },
+        {
+          "city": "Loudwater",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Eltabbar",
+          "rating": 5
+        },
+        {
+          "city": "Elturel",
+          "rating": 2
+        },
+        {
+          "city": "Crimmor",
+          "rating": 5
+        },
+        {
+          "city": "Airspur",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "marble",
+      "description": "white with gray or colored veins, smooth and polished, known for its beauty and use in temples and statues.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Marble",
+      "import_markets": [
+        {
+          "city": "Triboar",
+          "rating": 3
+        },
+        {
+          "city": "Selgaunt",
+          "rating": 4
+        },
+        {
+          "city": "Shadowdale",
+          "rating": 4
+        },
+        {
+          "city": "Reth",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Mirabar",
+          "rating": 3
+        },
+        {
+          "city": "Scornubel",
+          "rating": 2
+        },
+        {
+          "city": "Neverwinter",
+          "rating": 3
+        },
+        {
+          "city": "Athkatla",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "sandstone",
+      "description": "light brown or yellowish, with a grainy texture and natural layers, common in warmer climates.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Sandstone",
+      "import_markets": [
+        {
+          "city": "Hulburg",
+          "rating": 3
+        },
+        {
+          "city": "Mourktar",
+          "rating": 2
+        },
+        {
+          "city": "Hluthvar",
+          "rating": 2
+        },
+        {
+          "city": "Myratma",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Lyrabar",
+          "rating": 5
+        },
+        {
+          "city": "Suldolphor",
+          "rating": 5
+        },
+        {
+          "city": "Triboar",
+          "rating": 4
+        },
+        {
+          "city": "Scornubel",
+          "rating": 2
+        }
+      ]
+    }
+  ],
+  "spices": [
+    {
+      "product": "anise",
+      "description": "star-shaped pods with a licorice flavor; used in desserts and beverages.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Anise",
+      "import_markets": [
+        {
+          "city": "Raven\u2019s Bluff",
+          "rating": 2
+        },
+        {
+          "city": "Ordulin",
+          "rating": 4
+        },
+        {
+          "city": "Tashluta",
+          "rating": 4
+        },
+        {
+          "city": "Loudwater",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Hluthvar",
+          "rating": 3
+        },
+        {
+          "city": "Waterdeep",
+          "rating": 3
+        },
+        {
+          "city": "Crimmor",
+          "rating": 3
+        },
+        {
+          "city": "Airspur",
+          "rating": 2
+        }
+      ]
+    },
+    {
+      "product": "bay leaves",
+      "description": "smooth, oval green leaves with a mild aroma; often used to flavor stews and soups.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Bay_Leaves",
+      "import_markets": [
+        {
+          "city": "Athkatla",
+          "rating": 3
+        },
+        {
+          "city": "Mintarn",
+          "rating": 2
+        },
+        {
+          "city": "Saerloon",
+          "rating": 2
+        },
+        {
+          "city": "Procampur",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Longsaddle",
+          "rating": 2
+        },
+        {
+          "city": "Myratma",
+          "rating": 5
+        },
+        {
+          "city": "Shadowdale",
+          "rating": 4
+        },
+        {
+          "city": "Skullport",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "black pepper",
+      "description": "small, wrinkled black spheres with a sharp heat; a staple spice in many regions.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Black_Pepper",
+      "import_markets": [
+        {
+          "city": "Hillsfar",
+          "rating": 5
+        },
+        {
+          "city": "Procampur",
+          "rating": 5
+        },
+        {
+          "city": "Waterdeep",
+          "rating": 5
+        },
+        {
+          "city": "Calimport",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Selgaunt",
+          "rating": 3
+        },
+        {
+          "city": "Secomber",
+          "rating": 3
+        },
+        {
+          "city": "Myratma",
+          "rating": 3
+        },
+        {
+          "city": "Mirabar",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "cardamom",
+      "description": "small, green pods with aromatic seeds; valued in sweet and savory dishes.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Cardamom",
+      "import_markets": [
+        {
+          "city": "Loudwater",
+          "rating": 5
+        },
+        {
+          "city": "Hillsfar",
+          "rating": 4
+        },
+        {
+          "city": "Zhentil Keep",
+          "rating": 3
+        },
+        {
+          "city": "Raven\u2019s Bluff",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Phlan",
+          "rating": 2
+        },
+        {
+          "city": "Sundabar",
+          "rating": 2
+        },
+        {
+          "city": "Thentia",
+          "rating": 4
+        },
+        {
+          "city": "Innarlith",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "cinnamon",
+      "description": "fragrant brown bark rolled into sticks; used in sweet and savory dishes.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Cinnamon",
+      "import_markets": [
+        {
+          "city": "Evereska",
+          "rating": 3
+        },
+        {
+          "city": "Derlusk",
+          "rating": 3
+        },
+        {
+          "city": "Highmoon",
+          "rating": 4
+        },
+        {
+          "city": "Saerloon",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Cimbar",
+          "rating": 3
+        },
+        {
+          "city": "Messemprar",
+          "rating": 4
+        },
+        {
+          "city": "Elturel",
+          "rating": 4
+        },
+        {
+          "city": "Esmeltaran",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "clove",
+      "description": "dried flower buds, dark brown, with a strong aroma; used to flavor meats and sauces.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Clove",
+      "import_markets": [
+        {
+          "city": "Phlan",
+          "rating": 4
+        },
+        {
+          "city": "Loudwater",
+          "rating": 2
+        },
+        {
+          "city": "Scornubel",
+          "rating": 4
+        },
+        {
+          "city": "Daerlun",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Yhaunn",
+          "rating": 5
+        },
+        {
+          "city": "Calimport",
+          "rating": 5
+        },
+        {
+          "city": "Hlondeth",
+          "rating": 5
+        },
+        {
+          "city": "Mirabar",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "coriander",
+      "description": "small, round yellowish-brown seeds with a citrusy taste; used in various cuisines.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Coriander",
+      "import_markets": [
+        {
+          "city": "Zhentil Keep",
+          "rating": 4
+        },
+        {
+          "city": "Sarshel",
+          "rating": 2
+        },
+        {
+          "city": "Heldapan",
+          "rating": 3
+        },
+        {
+          "city": "Starmantle",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Hluthvar",
+          "rating": 2
+        },
+        {
+          "city": "Tashluta",
+          "rating": 5
+        },
+        {
+          "city": "Sarshel",
+          "rating": 2
+        },
+        {
+          "city": "Silverymoon",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "fennel",
+      "description": "green, feathery leaves and small seeds with a sweet, anise-like flavor.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Fennel",
+      "import_markets": [
+        {
+          "city": "Highmoon",
+          "rating": 4
+        },
+        {
+          "city": "Raven\u2019s Bluff",
+          "rating": 3
+        },
+        {
+          "city": "Yartar",
+          "rating": 4
+        },
+        {
+          "city": "Baldur\u2019s Gate",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Scornubel",
+          "rating": 5
+        },
+        {
+          "city": "Selgaunt",
+          "rating": 4
+        },
+        {
+          "city": "Daerlun",
+          "rating": 5
+        },
+        {
+          "city": "Port Kir",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "fenugreek",
+      "description": "yellow-brown seeds with a slightly bitter, nutty flavor; used in sauces and medicine.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Fenugreek",
+      "import_markets": [
+        {
+          "city": "Suldolphor",
+          "rating": 5
+        },
+        {
+          "city": "Evereska",
+          "rating": 3
+        },
+        {
+          "city": "Almorel",
+          "rating": 3
+        },
+        {
+          "city": "Mirabar",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Daggerford",
+          "rating": 3
+        },
+        {
+          "city": "Silverymoon",
+          "rating": 3
+        },
+        {
+          "city": "Melvaunt",
+          "rating": 2
+        },
+        {
+          "city": "Delzimmer",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "firepepper",
+      "description": "small, fiery red pods; used to add heat to dishes, especially in southern regions.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Firepepper",
+      "import_markets": [
+        {
+          "city": "Melvaunt",
+          "rating": 4
+        },
+        {
+          "city": "Suzail",
+          "rating": 5
+        },
+        {
+          "city": "Iriaebor",
+          "rating": 5
+        },
+        {
+          "city": "Longsaddle",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Triboar",
+          "rating": 4
+        },
+        {
+          "city": "Mourktar",
+          "rating": 3
+        },
+        {
+          "city": "Sundabar",
+          "rating": 4
+        },
+        {
+          "city": "Messemprar",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "galangal",
+      "description": "light brown, fibrous root with a peppery, ginger-like flavor; common in Eastern cuisine.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Galangal",
+      "import_markets": [
+        {
+          "city": "Arabel",
+          "rating": 2
+        },
+        {
+          "city": "Baldur\u2019s Gate",
+          "rating": 3
+        },
+        {
+          "city": "Nashkel",
+          "rating": 4
+        },
+        {
+          "city": "Raven\u2019s Bluff",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Secomber",
+          "rating": 4
+        },
+        {
+          "city": "Innarlith",
+          "rating": 2
+        },
+        {
+          "city": "Loudwater",
+          "rating": 2
+        },
+        {
+          "city": "Myratma",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "ginger",
+      "description": "knobby brown root with a warm, spicy flavor; used in cooking and healing.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Ginger",
+      "import_markets": [
+        {
+          "city": "Proskur",
+          "rating": 3
+        },
+        {
+          "city": "Sheirtalar",
+          "rating": 5
+        },
+        {
+          "city": "Longsaddle",
+          "rating": 3
+        },
+        {
+          "city": "Berdusk",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Westgate",
+          "rating": 3
+        },
+        {
+          "city": "Saerloon",
+          "rating": 5
+        },
+        {
+          "city": "Arrabar",
+          "rating": 4
+        },
+        {
+          "city": "Waterdeep",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "koraa nut",
+      "description": "small, reddish-brown nut with a bitter taste; used in Mulhorandi cuisine.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Koraa_Nut",
+      "import_markets": [
+        {
+          "city": "Iriaebor",
+          "rating": 5
+        },
+        {
+          "city": "Port Kir",
+          "rating": 2
+        },
+        {
+          "city": "Cathtyr",
+          "rating": 5
+        },
+        {
+          "city": "Saerloon",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Calimport",
+          "rating": 2
+        },
+        {
+          "city": "Esmeltaran",
+          "rating": 5
+        },
+        {
+          "city": "Airspur",
+          "rating": 2
+        },
+        {
+          "city": "Suldolphor",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "mace",
+      "description": "thin, red outer layer of the nutmeg seed; used for its slightly sweet flavor.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Mace",
+      "import_markets": [
+        {
+          "city": "Arrabar",
+          "rating": 5
+        },
+        {
+          "city": "Melvaunt",
+          "rating": 5
+        },
+        {
+          "city": "Esmeltaran",
+          "rating": 2
+        },
+        {
+          "city": "Calimport",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Leuthilspar",
+          "rating": 3
+        },
+        {
+          "city": "Loudwater",
+          "rating": 3
+        },
+        {
+          "city": "Hulburg",
+          "rating": 4
+        },
+        {
+          "city": "Thentia",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "mustard seeds",
+      "description": "tiny, round seeds, yellow or brown, with a strong flavor when ground; common in cooking.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Mustard_Seeds",
+      "import_markets": [
+        {
+          "city": "Innarlith",
+          "rating": 2
+        },
+        {
+          "city": "Crimmor",
+          "rating": 3
+        },
+        {
+          "city": "Athkatla",
+          "rating": 4
+        },
+        {
+          "city": "Calimport",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Saerloon",
+          "rating": 5
+        },
+        {
+          "city": "Halarahh",
+          "rating": 5
+        },
+        {
+          "city": "Delzimmer",
+          "rating": 2
+        },
+        {
+          "city": "Elmwood",
+          "rating": 2
+        }
+      ]
+    },
+    {
+      "product": "nutmeg",
+      "description": "round, brown seed often grated for its sweet, spicy aroma; used in desserts.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Nutmeg",
+      "import_markets": [
+        {
+          "city": "Arrabar",
+          "rating": 5
+        },
+        {
+          "city": "Sarshel",
+          "rating": 3
+        },
+        {
+          "city": "Almorel",
+          "rating": 3
+        },
+        {
+          "city": "Innarlith",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Iriaebor",
+          "rating": 3
+        },
+        {
+          "city": "Arrabar",
+          "rating": 3
+        },
+        {
+          "city": "Berdusk",
+          "rating": 5
+        },
+        {
+          "city": "Mirabar",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "saffron",
+      "description": "delicate red threads with a rich, floral aroma; highly prized and valuable.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Saffron",
+      "import_markets": [
+        {
+          "city": "Arabel",
+          "rating": 3
+        },
+        {
+          "city": "Tsurlagol",
+          "rating": 3
+        },
+        {
+          "city": "Yhaunn",
+          "rating": 3
+        },
+        {
+          "city": "Cimbar",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Mirabar",
+          "rating": 3
+        },
+        {
+          "city": "Airspur",
+          "rating": 2
+        },
+        {
+          "city": "Eversult",
+          "rating": 4
+        },
+        {
+          "city": "Proskur",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "sumac",
+      "description": "deep red powder with a tangy, lemony taste; popular in Middle Eastern dishes.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Sumac",
+      "import_markets": [
+        {
+          "city": "Procampur",
+          "rating": 4
+        },
+        {
+          "city": "Selgaunt",
+          "rating": 4
+        },
+        {
+          "city": "Derlusk",
+          "rating": 4
+        },
+        {
+          "city": "Everlund",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Arabel",
+          "rating": 2
+        },
+        {
+          "city": "Myratma",
+          "rating": 2
+        },
+        {
+          "city": "Mintarn",
+          "rating": 3
+        },
+        {
+          "city": "Suzail",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "thesk spice",
+      "description": "an exotic, varied blend of spices with a rich aroma, popular in high-end dishes.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Thesk_Spice",
+      "import_markets": [
+        {
+          "city": "Sarshel",
+          "rating": 2
+        },
+        {
+          "city": "Yartar",
+          "rating": 4
+        },
+        {
+          "city": "Westgate",
+          "rating": 2
+        },
+        {
+          "city": "Arabel",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Cathtyr",
+          "rating": 2
+        },
+        {
+          "city": "Almorel",
+          "rating": 3
+        },
+        {
+          "city": "Citadel Felbarr",
+          "rating": 2
+        },
+        {
+          "city": "Iriaebor",
+          "rating": 2
+        }
+      ]
+    },
+    {
+      "product": "turmeric",
+      "description": "bright yellow root with an earthy flavor; used in cooking and as a dye.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Turmeric",
+      "import_markets": [
+        {
+          "city": "Daggerford",
+          "rating": 3
+        },
+        {
+          "city": "Lyrabar",
+          "rating": 5
+        },
+        {
+          "city": "Everlund",
+          "rating": 3
+        },
+        {
+          "city": "Nashkel",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Derlusk",
+          "rating": 4
+        },
+        {
+          "city": "Darromar",
+          "rating": 4
+        },
+        {
+          "city": "Loudwater",
+          "rating": 2
+        },
+        {
+          "city": "Zazesspur",
+          "rating": 2
+        }
+      ]
+    },
+    {
+      "product": "wyrmtongue",
+      "description": "a golden-yellow spice with a slight shimmer, used in potions and protective wards.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Wyrmtongue",
+      "import_markets": [
+        {
+          "city": "Yhaunn",
+          "rating": 5
+        },
+        {
+          "city": "Highmoon",
+          "rating": 2
+        },
+        {
+          "city": "Berdusk",
+          "rating": 2
+        },
+        {
+          "city": "Saelmur",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Mourktar",
+          "rating": 3
+        },
+        {
+          "city": "Melvaunt",
+          "rating": 3
+        },
+        {
+          "city": "Triboar",
+          "rating": 5
+        },
+        {
+          "city": "Zhentil Keep",
+          "rating": 3
+        }
+      ]
+    }
+  ],
+  "trees": [
+    {
+      "product": "ash",
+      "description": "grayish bark with a tall, straight trunk; known for resilience and used in tool handles and weapon shafts.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Ash",
+      "import_markets": [
+        {
+          "city": "Ordulin",
+          "rating": 5
+        },
+        {
+          "city": "Elturel",
+          "rating": 4
+        },
+        {
+          "city": "Loudwater",
+          "rating": 3
+        },
+        {
+          "city": "Reth",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Hillsfar",
+          "rating": 4
+        },
+        {
+          "city": "Shadowdale",
+          "rating": 4
+        },
+        {
+          "city": "Hluthvar",
+          "rating": 3
+        },
+        {
+          "city": "Berdusk",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "birch",
+      "description": "white bark with delicate, papery layers; its wood is soft and often used in furniture.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Birch",
+      "import_markets": [
+        {
+          "city": "Zhentil Keep",
+          "rating": 2
+        },
+        {
+          "city": "Waterdeep",
+          "rating": 2
+        },
+        {
+          "city": "Skullport",
+          "rating": 3
+        },
+        {
+          "city": "Iriaebor",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Messemprar",
+          "rating": 5
+        },
+        {
+          "city": "Yhaunn",
+          "rating": 5
+        },
+        {
+          "city": "Secomber",
+          "rating": 3
+        },
+        {
+          "city": "Halarahh",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "blueleaf",
+      "description": "blue-tinted leaves, often found in magical groves; lightweight wood used by rangers and druids.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Blueleaf",
+      "import_markets": [
+        {
+          "city": "Messemprar",
+          "rating": 3
+        },
+        {
+          "city": "Eversult",
+          "rating": 3
+        },
+        {
+          "city": "Darromar",
+          "rating": 3
+        },
+        {
+          "city": "Silverymoon",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Suzail",
+          "rating": 5
+        },
+        {
+          "city": "Derlusk",
+          "rating": 5
+        },
+        {
+          "city": "Delzimmer",
+          "rating": 2
+        },
+        {
+          "city": "Almorel",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "cedar",
+      "description": "fragrant reddish wood with natural insect resistance; used for building and storage chests.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Cedar",
+      "import_markets": [
+        {
+          "city": "Reth",
+          "rating": 4
+        },
+        {
+          "city": "Bezantur",
+          "rating": 4
+        },
+        {
+          "city": "Innarlith",
+          "rating": 4
+        },
+        {
+          "city": "Longsaddle",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Procampur",
+          "rating": 4
+        },
+        {
+          "city": "Daerlun",
+          "rating": 3
+        },
+        {
+          "city": "Darromar",
+          "rating": 3
+        },
+        {
+          "city": "Secomber",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "chime oak",
+      "description": "musical bark that produces gentle tones when wind moves through it; valued for its enchanting properties.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Chime_Oak",
+      "import_markets": [
+        {
+          "city": "Saelmur",
+          "rating": 3
+        },
+        {
+          "city": "Longsaddle",
+          "rating": 3
+        },
+        {
+          "city": "Bezantur",
+          "rating": 2
+        },
+        {
+          "city": "Scornubel",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Sarshel",
+          "rating": 2
+        },
+        {
+          "city": "Mourktar",
+          "rating": 4
+        },
+        {
+          "city": "Yartar",
+          "rating": 3
+        },
+        {
+          "city": "Procampur",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "darkwood",
+      "description": "lightweight, dark, and magically resistant; used in ranger and druid equipment.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Darkwood",
+      "import_markets": [
+        {
+          "city": "Mourktar",
+          "rating": 3
+        },
+        {
+          "city": "Reth",
+          "rating": 2
+        },
+        {
+          "city": "Secomber",
+          "rating": 3
+        },
+        {
+          "city": "Daggerford",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Suldolphor",
+          "rating": 5
+        },
+        {
+          "city": "Triboar",
+          "rating": 5
+        },
+        {
+          "city": "Daerlun",
+          "rating": 5
+        },
+        {
+          "city": "Yhaunn",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "ebony",
+      "description": "dark black or brown wood, dense and fine-grained; prized for its luxurious appearance.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Ebony",
+      "import_markets": [
+        {
+          "city": "Memnon",
+          "rating": 2
+        },
+        {
+          "city": "Mintarn",
+          "rating": 5
+        },
+        {
+          "city": "Mourktar",
+          "rating": 5
+        },
+        {
+          "city": "Heldapan",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Sarshel",
+          "rating": 2
+        },
+        {
+          "city": "Sundabar",
+          "rating": 3
+        },
+        {
+          "city": "Phlan",
+          "rating": 4
+        },
+        {
+          "city": "Suldolphor",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "ironwood",
+      "description": "dense and extremely tough wood; often used for reinforced buildings and armor.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Ironwood",
+      "import_markets": [
+        {
+          "city": "Highmoon",
+          "rating": 3
+        },
+        {
+          "city": "Melvaunt",
+          "rating": 2
+        },
+        {
+          "city": "Port Kir",
+          "rating": 2
+        },
+        {
+          "city": "Mirabar",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Messemprar",
+          "rating": 5
+        },
+        {
+          "city": "Neverwinter",
+          "rating": 4
+        },
+        {
+          "city": "Zhentil Keep",
+          "rating": 4
+        },
+        {
+          "city": "Scornubel",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "mahogany",
+      "description": "deep reddish-brown wood with a smooth grain; prized for fine furniture and carving.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Mahogany",
+      "import_markets": [
+        {
+          "city": "Sheirtalar",
+          "rating": 4
+        },
+        {
+          "city": "Murann",
+          "rating": 5
+        },
+        {
+          "city": "Elmwood",
+          "rating": 4
+        },
+        {
+          "city": "Zazesspur",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Berdusk",
+          "rating": 2
+        },
+        {
+          "city": "Waterdeep",
+          "rating": 2
+        },
+        {
+          "city": "Myratma",
+          "rating": 5
+        },
+        {
+          "city": "Esmeltaran",
+          "rating": 2
+        }
+      ]
+    },
+    {
+      "product": "maple",
+      "description": "smooth gray bark with broad leaves that turn red or yellow; valued for syrup and hardwood.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Maple",
+      "import_markets": [
+        {
+          "city": "Eversult",
+          "rating": 5
+        },
+        {
+          "city": "Yhaunn",
+          "rating": 4
+        },
+        {
+          "city": "Arabel",
+          "rating": 4
+        },
+        {
+          "city": "Neverwinter",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Sarshel",
+          "rating": 3
+        },
+        {
+          "city": "Messemprar",
+          "rating": 4
+        },
+        {
+          "city": "Longsaddle",
+          "rating": 2
+        },
+        {
+          "city": "Yartar",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "oak",
+      "description": "strong, wide trunk with thick, deeply ridged bark; valued for its hardwood in furniture and building.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Oak",
+      "import_markets": [
+        {
+          "city": "Nashkel",
+          "rating": 5
+        },
+        {
+          "city": "Esmeltaran",
+          "rating": 2
+        },
+        {
+          "city": "Daerlun",
+          "rating": 3
+        },
+        {
+          "city": "Myratma",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Athkatla",
+          "rating": 3
+        },
+        {
+          "city": "Thentia",
+          "rating": 5
+        },
+        {
+          "city": "Waterdeep",
+          "rating": 2
+        },
+        {
+          "city": "Saelmur",
+          "rating": 2
+        }
+      ]
+    },
+    {
+      "product": "pine",
+      "description": "tall and evergreen with needle-like leaves, producing cones; valued for its softwood, used in construction and fuel.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Pine",
+      "import_markets": [
+        {
+          "city": "Procampur",
+          "rating": 3
+        },
+        {
+          "city": "Tashluta",
+          "rating": 2
+        },
+        {
+          "city": "Everlund",
+          "rating": 5
+        },
+        {
+          "city": "Zhentil Keep",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Proskur",
+          "rating": 5
+        },
+        {
+          "city": "Waterdeep",
+          "rating": 3
+        },
+        {
+          "city": "Yartar",
+          "rating": 3
+        },
+        {
+          "city": "Espar",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "rosewood",
+      "description": "rich reddish-brown with dark streaks, often fragrant; valued in furniture and musical instruments.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Rosewood",
+      "import_markets": [
+        {
+          "city": "Sarshel",
+          "rating": 3
+        },
+        {
+          "city": "Procampur",
+          "rating": 4
+        },
+        {
+          "city": "Skuld",
+          "rating": 4
+        },
+        {
+          "city": "Daggerford",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Cathtyr",
+          "rating": 5
+        },
+        {
+          "city": "Hluthvar",
+          "rating": 5
+        },
+        {
+          "city": "Selgaunt",
+          "rating": 4
+        },
+        {
+          "city": "Messemprar",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "shadowtop",
+      "description": "tall with a broad canopy and dark bark; known for its durability and used in building.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Shadowtop",
+      "import_markets": [
+        {
+          "city": "Crimmor",
+          "rating": 3
+        },
+        {
+          "city": "Hluthvar",
+          "rating": 2
+        },
+        {
+          "city": "Eltabbar",
+          "rating": 4
+        },
+        {
+          "city": "Iriaebor",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Elturel",
+          "rating": 3
+        },
+        {
+          "city": "Nashkel",
+          "rating": 2
+        },
+        {
+          "city": "Iriaebor",
+          "rating": 4
+        },
+        {
+          "city": "Tsurlagol",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "silverbark",
+      "description": "silvery sheen with a flexible texture; used in bows and armor among elven communities.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Silverbark",
+      "import_markets": [
+        {
+          "city": "Mintarn",
+          "rating": 4
+        },
+        {
+          "city": "Arrabar",
+          "rating": 2
+        },
+        {
+          "city": "Lyrabar",
+          "rating": 5
+        },
+        {
+          "city": "Eltabbar",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Citadel Adbar",
+          "rating": 5
+        },
+        {
+          "city": "Mintarn",
+          "rating": 3
+        },
+        {
+          "city": "Sarshel",
+          "rating": 2
+        },
+        {
+          "city": "Innarlith",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "teak",
+      "description": "golden-brown, weather-resistant wood; used in shipbuilding and outdoor furniture.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Teak",
+      "import_markets": [
+        {
+          "city": "Sundabar",
+          "rating": 4
+        },
+        {
+          "city": "Cathtyr",
+          "rating": 5
+        },
+        {
+          "city": "Innarlith",
+          "rating": 3
+        },
+        {
+          "city": "Loudwater",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Eversult",
+          "rating": 2
+        },
+        {
+          "city": "Messemprar",
+          "rating": 3
+        },
+        {
+          "city": "Esmeltaran",
+          "rating": 4
+        },
+        {
+          "city": "Saerloon",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "walnut",
+      "description": "dark brown wood, with rough, furrowed bark; prized for its strength and beauty in carpentry.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Walnut",
+      "import_markets": [
+        {
+          "city": "Halarahh",
+          "rating": 2
+        },
+        {
+          "city": "Almorel",
+          "rating": 5
+        },
+        {
+          "city": "Silverymoon",
+          "rating": 3
+        },
+        {
+          "city": "Messemprar",
+          "rating": 3
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Zhentil Keep",
+          "rating": 3
+        },
+        {
+          "city": "Suzail",
+          "rating": 5
+        },
+        {
+          "city": "Derlusk",
+          "rating": 3
+        },
+        {
+          "city": "Mirabar",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "weirwood",
+      "description": "pale, rot-resistant wood, favored in magical crafting for its longevity.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Weirwood",
+      "import_markets": [
+        {
+          "city": "Calimport",
+          "rating": 2
+        },
+        {
+          "city": "Starmantle",
+          "rating": 2
+        },
+        {
+          "city": "Telflamm",
+          "rating": 2
+        },
+        {
+          "city": "Loudwater",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Shadowdale",
+          "rating": 2
+        },
+        {
+          "city": "Messemprar",
+          "rating": 4
+        },
+        {
+          "city": "Urmlaspyr",
+          "rating": 3
+        },
+        {
+          "city": "Suzail",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "yew",
+      "description": "dark green needles and reddish bark, often associated with bows due to its elasticity and strength.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Yew",
+      "import_markets": [
+        {
+          "city": "Derlusk",
+          "rating": 2
+        },
+        {
+          "city": "Shadowdale",
+          "rating": 2
+        },
+        {
+          "city": "Eversult",
+          "rating": 4
+        },
+        {
+          "city": "Cathtyr",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Reth",
+          "rating": 3
+        },
+        {
+          "city": "Port Kir",
+          "rating": 5
+        },
+        {
+          "city": "Arabel",
+          "rating": 3
+        },
+        {
+          "city": "Tashluta",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "zalantar",
+      "description": "black-barked tree, resistant to moisture; often called blackwood, valued in weapon crafting.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Zalantar",
+      "import_markets": [
+        {
+          "city": "Cimbar",
+          "rating": 5
+        },
+        {
+          "city": "Calimport",
+          "rating": 3
+        },
+        {
+          "city": "Shadowdale",
+          "rating": 2
+        },
+        {
+          "city": "Saerloon",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Halarahh",
+          "rating": 5
+        },
+        {
+          "city": "Derlusk",
+          "rating": 4
+        },
+        {
+          "city": "Shadowdale",
+          "rating": 2
+        },
+        {
+          "city": "Zazesspur",
+          "rating": 2
+        }
+      ]
+    }
+  ],
+  "vegetables": [
+    {
+      "product": "beans",
+      "description": "green or dried pods with seeds, used in a variety of dishes.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Beans",
+      "import_markets": [
+        {
+          "city": "Suldolphor",
+          "rating": 4
+        },
+        {
+          "city": "Urmlaspyr",
+          "rating": 3
+        },
+        {
+          "city": "Waterdeep",
+          "rating": 5
+        },
+        {
+          "city": "Westgate",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Proskur",
+          "rating": 2
+        },
+        {
+          "city": "Messemprar",
+          "rating": 3
+        },
+        {
+          "city": "Sheirtalar",
+          "rating": 5
+        },
+        {
+          "city": "Menzoberranzan",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "cabbage",
+      "description": "round, leafy green heads; a common vegetable in soups and stews.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Cabbage",
+      "import_markets": [
+        {
+          "city": "Proskur",
+          "rating": 5
+        },
+        {
+          "city": "Westgate",
+          "rating": 5
+        },
+        {
+          "city": "Citadel Adbar",
+          "rating": 5
+        },
+        {
+          "city": "Heldapan",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Zazesspur",
+          "rating": 3
+        },
+        {
+          "city": "Saerloon",
+          "rating": 4
+        },
+        {
+          "city": "Longsaddle",
+          "rating": 5
+        },
+        {
+          "city": "Delzimmer",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "carrots",
+      "description": "orange, tapered roots with a sweet flavor; versatile and widely used.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Carrots",
+      "import_markets": [
+        {
+          "city": "Sheirtalar",
+          "rating": 5
+        },
+        {
+          "city": "Yhaunn",
+          "rating": 4
+        },
+        {
+          "city": "Hillsfar",
+          "rating": 4
+        },
+        {
+          "city": "Thentia",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Zhentil Keep",
+          "rating": 3
+        },
+        {
+          "city": "Derlusk",
+          "rating": 3
+        },
+        {
+          "city": "Elmwood",
+          "rating": 3
+        },
+        {
+          "city": "Highmoon",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "celery",
+      "description": "crunchy, pale green stalks, often used in soups and stews.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Celery",
+      "import_markets": [
+        {
+          "city": "Delzimmer",
+          "rating": 2
+        },
+        {
+          "city": "Sarshel",
+          "rating": 5
+        },
+        {
+          "city": "Urmlaspyr",
+          "rating": 4
+        },
+        {
+          "city": "Memnon",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Sundabar",
+          "rating": 3
+        },
+        {
+          "city": "Tsurlagol",
+          "rating": 4
+        },
+        {
+          "city": "Lyrabar",
+          "rating": 4
+        },
+        {
+          "city": "Baldur\u2019s Gate",
+          "rating": 2
+        }
+      ]
+    },
+    {
+      "product": "kale",
+      "description": "curly or flat, green leaves, often used in hearty dishes.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Kale",
+      "import_markets": [
+        {
+          "city": "Hluthvar",
+          "rating": 3
+        },
+        {
+          "city": "Murann",
+          "rating": 2
+        },
+        {
+          "city": "Westgate",
+          "rating": 4
+        },
+        {
+          "city": "Arrabar",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Citadel Felbarr",
+          "rating": 5
+        },
+        {
+          "city": "Secomber",
+          "rating": 4
+        },
+        {
+          "city": "Ordulin",
+          "rating": 2
+        },
+        {
+          "city": "Raven\u2019s Bluff",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "leeks",
+      "description": "long, thick green stalks with a mild onion flavor.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Leeks",
+      "import_markets": [
+        {
+          "city": "Halarahh",
+          "rating": 3
+        },
+        {
+          "city": "Highmoon",
+          "rating": 5
+        },
+        {
+          "city": "Tsurlagol",
+          "rating": 3
+        },
+        {
+          "city": "Daerlun",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Innarlith",
+          "rating": 2
+        },
+        {
+          "city": "Sarshel",
+          "rating": 3
+        },
+        {
+          "city": "Selgaunt",
+          "rating": 5
+        },
+        {
+          "city": "Silverymoon",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "onions",
+      "description": "brown, red, or white bulbs with a strong flavor; used to season dishes.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Onions",
+      "import_markets": [
+        {
+          "city": "Bezantur",
+          "rating": 3
+        },
+        {
+          "city": "Crimmor",
+          "rating": 4
+        },
+        {
+          "city": "Zhentil Keep",
+          "rating": 3
+        },
+        {
+          "city": "Menzoberranzan",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Derlusk",
+          "rating": 3
+        },
+        {
+          "city": "Heldapan",
+          "rating": 5
+        },
+        {
+          "city": "Daggerford",
+          "rating": 3
+        },
+        {
+          "city": "Waterdeep",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "parsnips",
+      "description": "creamy white, carrot-like roots with a slightly sweet flavor.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Parsnips",
+      "import_markets": [
+        {
+          "city": "Memnon",
+          "rating": 3
+        },
+        {
+          "city": "Secomber",
+          "rating": 5
+        },
+        {
+          "city": "Scornubel",
+          "rating": 3
+        },
+        {
+          "city": "Esmeltaran",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Port Kir",
+          "rating": 2
+        },
+        {
+          "city": "Raven\u2019s Bluff",
+          "rating": 5
+        },
+        {
+          "city": "Mintarn",
+          "rating": 2
+        },
+        {
+          "city": "Proskur",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "peas",
+      "description": "round green seeds in pods, used fresh or dried in cooking.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Peas",
+      "import_markets": [
+        {
+          "city": "Cathtyr",
+          "rating": 4
+        },
+        {
+          "city": "Selgaunt",
+          "rating": 2
+        },
+        {
+          "city": "Hulburg",
+          "rating": 4
+        },
+        {
+          "city": "Scornubel",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Scornubel",
+          "rating": 3
+        },
+        {
+          "city": "Shadowdale",
+          "rating": 2
+        },
+        {
+          "city": "Murann",
+          "rating": 5
+        },
+        {
+          "city": "Yartar",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "potatoes",
+      "description": "brown, knobbly tubers; a filling staple in many regions.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Potatoes",
+      "import_markets": [
+        {
+          "city": "Arabel",
+          "rating": 4
+        },
+        {
+          "city": "Daggerford",
+          "rating": 4
+        },
+        {
+          "city": "Daerlun",
+          "rating": 5
+        },
+        {
+          "city": "Raven\u2019s Bluff",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Proskur",
+          "rating": 2
+        },
+        {
+          "city": "Myratma",
+          "rating": 5
+        },
+        {
+          "city": "Memnon",
+          "rating": 5
+        },
+        {
+          "city": "Yartar",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "pumpkins",
+      "description": "large orange gourds with thick flesh; cooked in soups and desserts.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Pumpkins",
+      "import_markets": [
+        {
+          "city": "Procampur",
+          "rating": 5
+        },
+        {
+          "city": "Yhaunn",
+          "rating": 4
+        },
+        {
+          "city": "Elmwood",
+          "rating": 2
+        },
+        {
+          "city": "Hulburg",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Raven\u2019s Bluff",
+          "rating": 5
+        },
+        {
+          "city": "Crimmor",
+          "rating": 5
+        },
+        {
+          "city": "Nashkel",
+          "rating": 5
+        },
+        {
+          "city": "Baldur\u2019s Gate",
+          "rating": 3
+        }
+      ]
+    },
+    {
+      "product": "radishes",
+      "description": "small, red or white, round and spicy; eaten raw or in salads.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Radishes",
+      "import_markets": [
+        {
+          "city": "Hlondeth",
+          "rating": 5
+        },
+        {
+          "city": "Athkatla",
+          "rating": 3
+        },
+        {
+          "city": "Silverymoon",
+          "rating": 2
+        },
+        {
+          "city": "Port Kir",
+          "rating": 5
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Saelmur",
+          "rating": 2
+        },
+        {
+          "city": "Sundabar",
+          "rating": 2
+        },
+        {
+          "city": "Highmoon",
+          "rating": 5
+        },
+        {
+          "city": "Urmlaspyr",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "spinach",
+      "description": "dark green leafy vegetable, eaten raw or cooked.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Spinach",
+      "import_markets": [
+        {
+          "city": "Phlan",
+          "rating": 2
+        },
+        {
+          "city": "Baldur\u2019s Gate",
+          "rating": 3
+        },
+        {
+          "city": "Darromar",
+          "rating": 4
+        },
+        {
+          "city": "Skuld",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Suzail",
+          "rating": 4
+        },
+        {
+          "city": "Calimport",
+          "rating": 3
+        },
+        {
+          "city": "Hillsfar",
+          "rating": 4
+        },
+        {
+          "city": "Heldapan",
+          "rating": 4
+        }
+      ]
+    },
+    {
+      "product": "squash",
+      "description": "hard shell with orange or green flesh; often used in soups and baked dishes.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Squash",
+      "import_markets": [
+        {
+          "city": "Cathtyr",
+          "rating": 4
+        },
+        {
+          "city": "Hillsfar",
+          "rating": 4
+        },
+        {
+          "city": "Zhentil Keep",
+          "rating": 3
+        },
+        {
+          "city": "Calimport",
+          "rating": 4
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Arrabar",
+          "rating": 3
+        },
+        {
+          "city": "Nashkel",
+          "rating": 5
+        },
+        {
+          "city": "Memnon",
+          "rating": 2
+        },
+        {
+          "city": "Loudwater",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "product": "turnips",
+      "description": "purple-white bulbs with leafy tops; hearty and mild, used in stews.",
+      "url": "https://forgottenrealms.fandom.com/wiki/Turnips",
+      "import_markets": [
+        {
+          "city": "Bezantur",
+          "rating": 4
+        },
+        {
+          "city": "Eversult",
+          "rating": 3
+        },
+        {
+          "city": "Lyrabar",
+          "rating": 2
+        },
+        {
+          "city": "Ordulin",
+          "rating": 2
+        }
+      ],
+      "export_markets": [
+        {
+          "city": "Halarahh",
+          "rating": 4
+        },
+        {
+          "city": "Menzoberranzan",
+          "rating": 5
+        },
+        {
+          "city": "Esmeltaran",
+          "rating": 2
+        },
+        {
+          "city": "Telflamm",
+          "rating": 5
+        }
+      ]
+    }
+  ]
+}// Fill from JSON
+
+  let activeGroups = [];
+
+  function toggleFilter(event) {
+    const button = event.target;
+    const group = button.textContent.toLowerCase();
+    const index = activeGroups.indexOf(group);
+    if (index > -1) {
+      activeGroups.splice(index, 1);
+      button.classList.remove("active");
+    } else {
+      activeGroups.push(group);
+      button.classList.add("active");
+    }
+    filterItems();
+  }
+
+  function renderStars(rating) {
+    return "⭐".repeat(rating);
+  }
+
+  function renderMarkets(label, list) {
+    if (!list || list.length === 0) return "";
+    return `<p><b>${label}:</b><br>` +
+           list.map(m => `<div style="padding-left:5px;">${m.city} ${renderStars(m.rating)}</div>`).join("") +
+           `</p>`;
+  }
+
+  function displayItems() {
+    const container = document.getElementById("itemContainer");
+    container.innerHTML = "";
+
+    for (const group in groupedItems) {
+      if (activeGroups.length && !activeGroups.includes(group)) continue;
+
+      const groupWrapper = document.createElement("div");
+      groupWrapper.className = "group";
+      const groupHeader = document.createElement("h2");
+      groupHeader.textContent = group.charAt(0).toUpperCase() + group.slice(1);
+      const itemRow = document.createElement("div");
+      itemRow.className = "item-row";
+
+      groupedItems[group].forEach(item => {
+        const itemDiv = document.createElement("div");
+        itemDiv.className = "item";
+
+        const imports = renderMarkets("Imports", item.import_markets);
+        const exports = renderMarkets("Exports", item.export_markets);
+
+        itemDiv.innerHTML = `
+          <a href="${group}/${item.product}.png">
+            <img src="${group}/${item.product}_t.jpg" alt="${item.product}"
+              onerror="this.onerror=null;this.src='placeholder.png';this.className='off'">
+          </a>
+          <h2><a href="${item.url}" target="_blank">${item.product} ⧉</a></h2>
+          <p>${item.description}</p>
+          ${imports}
+          ${exports}
+        `;
+        itemRow.appendChild(itemDiv);
+      });
+
+      groupWrapper.appendChild(groupHeader);
+      groupWrapper.appendChild(itemRow);
+      container.appendChild(groupWrapper);
+    }
+  }
+
+  function filterItems() {
+    const searchValue = document.getElementById("searchBar").value.toLowerCase();
+    const container = document.getElementById("itemContainer");
+    container.innerHTML = "";
+
+    for (const group in groupedItems) {
+      if (activeGroups.length && !activeGroups.includes(group)) continue;
+
+      const matches = groupedItems[group].filter(item =>
+        item.product.toLowerCase().includes(searchValue) ||
+        item.description.toLowerCase().includes(searchValue)
+      );
+
+      if (!matches.length) continue;
+
+      const groupWrapper = document.createElement("div");
+      groupWrapper.className = "group";
+      const groupHeader = document.createElement("h2");
+      groupHeader.textContent = group.charAt(0).toUpperCase() + group.slice(1);
+      const itemRow = document.createElement("div");
+      itemRow.className = "item-row";
+
+      matches.forEach(item => {
+        const itemDiv = document.createElement("div");
+        itemDiv.className = "item";
+
+        const imports = renderMarkets("Imports", item.import_markets);
+        const exports = renderMarkets("Exports", item.export_markets);
+
+        itemDiv.innerHTML = `
+          <a href="${group}/${item.product}.png">
+            <img src="${group}/${item.product}_t.jpg" alt="${item.product}"
+              onerror="this.onerror=null;this.src='placeholder.png';this.className='off'">
+          </a>
+          <h2><a href="${item.url}" target="_blank">${item.product} ⧉</a></h2>
+          <p>${item.description}</p>
+          ${imports}
+          ${exports}
+        `;
+        itemRow.appendChild(itemDiv);
+      });
+
+      groupWrapper.appendChild(groupHeader);
+      groupWrapper.appendChild(itemRow);
+      container.appendChild(groupWrapper);
+    }
+  }
+
+  displayItems();
+</script>
+
+</body>
+</html>
+

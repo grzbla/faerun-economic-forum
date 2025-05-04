@@ -1,0 +1,43 @@
+{
+  "campaigns": {
+    "AD&D Game": {
+      "currency": {
+        "PP": 5,
+        "GP": 1,
+        "EP": 0.5,
+        "SP": 0.1,
+        "CP": 0.01
+      }
+    },
+    "Oriental Adventures Campaign": {
+      "currency": {
+        "Ch'ien": 5,
+        "Ch'ao": 1,
+        "Tael": 1,
+        "Yuan": 0.125,
+        "Fen": 0.025
+      }
+    },
+    "Dragonlance Campaign": {
+      "currency": {
+        "PP": 5,
+        "Steel": 1,
+        "Iron": 0.5,
+        "Bronze": 0.02,
+        "Gold": 0.1,
+        "Silver": 0.05,
+        "Copper": 0.01
+      }
+    },
+    "Dark Sun Campaign": {
+      "currency": {
+        "Platinum": 5,
+        "Gold": 1,
+        "Electrum": 0.5,
+        "Silver": 0.1,
+        "Ceramic": 0.01,
+        "Bit": 0.001
+      }
+    }
+  }
+}
