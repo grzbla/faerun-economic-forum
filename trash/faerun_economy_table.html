@@ -1,0 +1,143 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Faerûn Economic Index</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    body {
+        background-color: #1b1a17;
+        color: #e4d4b3;
+        font-family: 'Garamond', 'Times New Roman', serif;
+        margin: 0;
+        padding: 2em;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1em;
+    }
+    th, td {
+        border: 1px solid #555;
+        padding: 0.5em;
+        text-align: left;
+    }
+    th {
+        background-color: #322f28;
+        cursor: pointer;
+    }
+    tr:nth-child(even) {
+        background-color: #2a2823;
+    }
+    tr:hover {
+        background-color: #3a362e;
+    }
+    h1, p {
+        color: #f8e8c8;
+    }
+</style>
+</head>
+<body>
+
+<h1>Faerûn Economic Scorecards</h1>
+<p>This table compiles canonical data on the economic, military, arcane, and social metrics of over 90 cities across Faerûn (circa 1372 DR). Each row represents a city, combining metrics from a variety of sourcebooks and logical interpolations. Click headers to sort. Data includes: population, ship and wagon traffic, magical influence, military strength, trade centrality, literacy, and economic control factions.</p>
+
+<table id="faerunTable">
+<thead>
+<tr>
+    <th>#</th>
+    <th>City</th>
+    <th>Population</th>
+    <th>Ships/day</th>
+    <th>Wagons/day</th>
+    <th>Bank Assets (gp)</th>
+    <th>Export Index</th>
+    <th>Mage Index</th>
+    <th>Military Index</th>
+    <th>Threat Index</th>
+    <th>Trade Hub</th>
+    <th>Literacy %</th>
+    <th>Why Loaded</th>
+    <th>Key Players</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<script src="faerun_population_canon_full.js"></script>
+<script src="faerun_ships_daily_canon.js"></script>
+<script src="faerun_wagons_daily_canon.js"></script>
+<script src="faerun_bank_assets_canon.js"></script>
+<script src="faerun_export_index_canon.js"></script>
+<script src="faerun_mage_index_canon.js"></script>
+<script src="faerun_military_index_canon.js"></script>
+<script src="faerun_threat_index_canon.js"></script>
+<script src="faerun_trade_hub_score.js"></script>
+<script src="faerun_literacy_rate_canon.js"></script>
+<script src="faerun_economic_fluff.js"></script>
+<script src="faerun_key_wealth_players.js"></script>
+
+<script>
+const cityMap = {};
+
+function mapByCity(arr, key) {
+    arr.forEach(e => {
+        if (!cityMap[e.c]) cityMap[e.c] = { name: e.c };
+        cityMap[e.c][key] = Object.values(e)[1];
+    });
+}
+
+mapByCity(popCanon, "pop");
+mapByCity(shipsCanon, "ships");
+mapByCity(wagonsCanon, "wagons");
+mapByCity(bankAssetsCanon, "bank");
+mapByCity(exportIndexCanon, "export");
+mapByCity(mageIndexCanon, "mage");
+mapByCity(militaryIndexCanon, "mil");
+mapByCity(threatIndexCanon, "threat");
+mapByCity(tradeHubScoreCanon, "hub");
+mapByCity(literacyRateCanon, "lit");
+mapByCity(econFluffCanon, "why");
+mapByCity(keyPlayersCanon, "who");
+
+const tbody = document.querySelector("tbody");
+Object.values(cityMap).forEach((city, i) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+        <td>${i + 1}</td>
+        <td>${city.name}</td>
+        <td>${city.pop ?? ''}</td>
+        <td>${city.ships ?? ''}</td>
+        <td>${city.wagons ?? ''}</td>
+        <td>${city.bank?.toLocaleString() ?? ''}</td>
+        <td>${city.export ?? ''}</td>
+        <td>${city.mage ?? ''}</td>
+        <td>${city.mil ?? ''}</td>
+        <td>${city.threat ?? ''}</td>
+        <td>${city.hub ?? ''}</td>
+        <td>${city.lit ?? ''}</td>
+        <td>${city.why ?? ''}</td>
+        <td>${city.who ?? ''}</td>
+    `;
+    tbody.appendChild(row);
+});
+
+// Simple column sort
+document.querySelectorAll("th").forEach((th, idx) => {
+    th.addEventListener("click", () => {
+        const rows = Array.from(tbody.querySelectorAll("tr"));
+        const isNum = idx !== 1 && idx !== 12 && idx !== 13;
+        rows.sort((a, b) => {
+            let va = a.children[idx].textContent;
+            let vb = b.children[idx].textContent;
+            return isNum ? (parseFloat(va.replace(/,/g, '')) || 0) - (parseFloat(vb.replace(/,/g, '')) || 0)
+                         : va.localeCompare(vb);
+        });
+        tbody.replaceChildren(...rows);
+    });
+});
+</script>
+
+</body>
+</html>

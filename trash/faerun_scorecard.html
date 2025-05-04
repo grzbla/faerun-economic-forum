@@ -1,0 +1,125 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Faerûn Economic Scorecards</title>
+<style>
+  body {
+    background: #111;
+    color: #eee;
+    font-family: monospace;
+    padding: 2em;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1em;
+    font-size: 0.9em;
+  }
+  th, td {
+    padding: 6px 10px;
+    border: 1px solid #333;
+    text-align: left;
+  }
+  th {
+    background-color: #222;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+  tr:nth-child(even) {
+    background-color: #1a1a1a;
+  }
+  tr:hover {
+    background-color: #222;
+  }
+</style>
+</head>
+<body>
+<h1>Faerûn Economic Scorecards</h1>
+<p>This table consolidates canonical and interpolated economic, military, and cultural data from the Forgotten Realms through 1372 DR. Each entry represents a city-state or major settlement, with real-world utility for simulations, campaign prep, or analysis.</p>
+<p><strong>Legend:</strong> Scores are on 0–100 scale unless otherwise noted. Population and assets are numeric. Text fields offer fluff and political context.</p>
+
+<table id="scorecard">
+  <thead>
+    <tr>
+      <th>City</th>
+      <th>Population</th>
+      <th>Ships/day</th>
+      <th>Wagons/day</th>
+      <th>Bank Assets (gp)</th>
+      <th>Export</th>
+      <th>Mages</th>
+      <th>Military</th>
+      <th>Threat</th>
+      <th>Trade Hub</th>
+      <th>Literacy %</th>
+      <th>Why Loaded</th>
+      <th>Who's In Power</th>
+    </tr>
+  </thead>
+  <tbody id="rows"></tbody>
+</table>
+
+<script src="faerun_population_canon_full.js"></script>
+<script src="faerun_ships_daily_canon.js"></script>
+<script src="faerun_wagons_daily_canon.js"></script>
+<script src="faerun_bank_assets_canon.js"></script>
+<script src="faerun_export_index_canon.js"></script>
+<script src="faerun_mage_index_canon.js"></script>
+<script src="faerun_military_index_canon.js"></script>
+<script src="faerun_threat_index_canon.js"></script>
+<script src="faerun_trade_hub_score.js"></script>
+<script src="faerun_literacy_rate_canon.js"></script>
+<script src="faerun_economic_fluff.js"></script>
+<script src="faerun_key_wealth_players.js"></script>
+
+<script>
+const byCity = {};
+
+function indexData(arr, key, prop) {
+  arr.forEach(e => {
+    const city = e[key];
+    if (!byCity[city]) byCity[city] = {};
+    Object.assign(byCity[city], e);
+  });
+}
+
+indexData(popCanon, 'c', 'p');
+indexData(shipsCanon, 'c', 'ships_daily');
+indexData(wagonsCanon, 'c', 'wagons_daily');
+indexData(bankAssetsCanon, 'c', 'bank_assets_gp');
+indexData(exportIndexCanon, 'c', 'export_index');
+indexData(mageIndexCanon, 'c', 'mage_index');
+indexData(militaryIndexCanon, 'c', 'military_index');
+indexData(threatIndexCanon, 'c', 'threat_index');
+indexData(tradeHubScoreCanon, 'c', 'trade_hub_score');
+indexData(literacyRateCanon, 'c', 'literacy_rate');
+indexData(econFluffCanon, 'c', 'why_loaded');
+indexData(keyPlayersCanon, 'c', 'who_loaded');
+
+const tbody = document.getElementById('rows');
+Object.keys(byCity).sort().forEach(c => {
+  const d = byCity[c];
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <td>${c}</td>
+    <td>${d.p ?? ''}</td>
+    <td>${d.ships_daily ?? ''}</td>
+    <td>${d.wagons_daily ?? ''}</td>
+    <td>${d.bank_assets_gp?.toLocaleString() ?? ''}</td>
+    <td>${d.export_index ?? ''}</td>
+    <td>${d.mage_index ?? ''}</td>
+    <td>${d.military_index ?? ''}</td>
+    <td>${d.threat_index ?? ''}</td>
+    <td>${d.trade_hub_score ?? ''}</td>
+    <td>${d.literacy_rate ?? ''}</td>
+    <td>${d.why_loaded ?? ''}</td>
+    <td>${d.who_loaded ?? ''}</td>
+  `;
+  tbody.appendChild(row);
+});
+</script>
+</body>
+</html>
