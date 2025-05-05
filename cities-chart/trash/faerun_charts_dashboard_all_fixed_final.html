@@ -1,0 +1,277 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Faerûn Unified City Index</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<style>
+    body {
+        background-color: #1b1a17;
+        color: #e4d4b3;
+        font-family: 'Garamond', 'Times New Roman', serif;
+        margin: 0;
+        padding: 2em;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1em;
+    }
+    th, td {
+        border: 1px solid #555;
+        padding: 0.5em;
+        text-align: left;
+    }
+    th {
+        background-color: #322f28;
+        cursor: pointer;
+    }
+    tr:nth-child(even) {
+        background-color: #2a2823;
+    }
+    tr:hover {
+        background-color: #3a362e;
+    }
+    h1, p {
+        color: #f8e8c8;
+    }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script></head>
+<body>
+<h1>Faerûn Economic Index</h1>
+<p>This scroll records compiled data on over 90 cities of the Realms, combining magical, mercantile, military, and social statistics into a sortable ledger.</p>
+<section style="max-width: 1000px; margin-bottom: 2em;">
+<h2>📜 About This Scroll</h2>
+<p>
+    This dataset unifies <strong>canonical Forgotten Realms sourcebook data</strong> with <em>carefully interpolated metrics</em> 
+    based on known trade routes, political weight, magical infrastructure, and published population figures (primarily pre-1372 DR).
+  </p>
+<h3>📘 Metric Explanations</h3>
+<ul>
+<li><strong>Population:</strong> Based on canon or scale-matched cities; towns below 10k noted where possible.</li>
+<li><strong>Ships/day:</strong> Extrapolated from harbor prominence, sea access, and canon notes (Waterdeep ~40/day anchor).</li>
+<li><strong>Wagons/day:</strong> Based on trade road density and economic role; Waterdeep ~220/day anchor.</li>
+<li><strong>Bank Assets (gp):</strong> Sum of known wealth in treasuries, vaults, temples, and guild banks; scaled from canon anchors (e.g. Waterdeep ≈ 45 M gp).</li>
+<li><strong>Export Index:</strong> 0–100 scale of trade diversity and outbound volume. Waterdeep, Calimport, Athkatla top this list.</li>
+<li><strong>Mage Index:</strong> Arcane influence on economy. 12 = low; 28 = active; 40+ = mage-dominant (e.g., Halruaa, Silverymoon).</li>
+<li><strong>Military Index:</strong> Defensive capability, standing armies, and fortress value. 12 = watchmen; 40+ = hardened stronghold.</li>
+<li><strong>Threat Index:</strong> Local volatility: monsters, politics, tyranny, criminal syndicates. 12 = stable; 45+ = Skullport/Zhentil-tier.</li>
+<li><strong>Trade Hub:</strong> Interregional connectivity, based on sea/road/magical links. 100 = Waterdeep.</li>
+<li><strong>Literacy %:</strong> Estimated reading/writing ability based on temples, schools, magical culture, or elite presence.</li>
+<li><strong>Why Loaded:</strong> Lore justification for a city’s wealth, drawn from sourcebooks or extrapolated with historical logic.</li>
+<li><strong>Key Players:</strong> Factions, families, guilds, or institutions who control the city’s wealth or steer its economy.</li>
+</ul>
+<h3>🛠 Methodology</h3>
+<p>
+    Canon anchors come from <em>Forgotten Realms Campaign Setting (3E)</em>, <em>Volo’s Guides</em>, <em>Lords of Darkness</em>, 
+    <em>City of Splendors</em>, and <em>FR Atlas</em>. Where data is missing, we used proportionate interpolation based on trade prominence, 
+    population class, and geographic position. Every number is traceable and justifiable, though many are estimates for comparative gameplay or campaign use.
+  </p>
+<p>
+    You are encouraged to override numbers for your campaign. This is a launch pad, not a lawbook.
+  </p>
+</section>
+<section id="chartZone" style="display: flex; flex-wrap: wrap; gap: 1em;">
+<div style="flex: 1 1 30vw;"><h3>Sorted Bar Chart</h3>
+<canvas id="barChart"></canvas>
+<label>Top entries: <input id="barCount" max="50" min="1" type="number" value="10"/></label>
+</div>
+<div style="flex: 1 1 30vw;"><h3>Radar Comparison</h3>
+<canvas id="radarChart"></canvas>
+<label>Max Cities: <input id="radarCap" max="10" min="1" type="number" value="5"/></label>
+</div>
+<div style="flex: 1 1 30vw;"><h3>Correlation</h3>
+<canvas id="corChart"></canvas>
+<label>X Axis: <select id="xColumn"></select></label>
+<label>Y Axis: <select id="yColumn"></select></label>
+</div>
+</section><table id="faerunTable">
+<thead>
+<tr>
+<th>#</th>
+<th>City</th>
+<th>Population</th>
+<th>Ships/day</th>
+<th>Wagons/day</th>
+<th>Bank Assets (gp)</th>
+<th>Export Index</th>
+<th>Mage Index</th>
+<th>Military Index</th>
+<th>Threat Index</th>
+<th>Trade Hub</th>
+<th>Literacy %</th>
+<th>Why Loaded</th>
+<th>Key Players</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+<script src="faerun_city_econ_unified.js"></script>
+<script>
+const faerunCityData = [{"c":"Airspur","pop":28000,"ships":9,"wagons":31,"bank":11600000,"export":80,"mage":28,"mil":30,"threat":26,"hub":68,"lit":51,"why":"Chessentan port and military enclave on the Inner Sea.","who":"War colleges, naval families, and temple-loyal merchants."},{"c":"Almorel","pop":17000,"ships":0,"wagons":26,"bank":8200000,"export":74,"mage":12,"mil":20,"threat":24,"hub":48,"lit":42,"why":"Lake of Steam trade caravan mid-point with farming wealth.","who":"Caravanserai holders and Lake of Steam investors."},{"c":"Arabel","pop":28000,"ships":0,"wagons":47,"bank":11600000,"export":80,"mage":12,"mil":38,"threat":30,"hub":68,"lit":60,"why":"Military logistics hub with mounted units, horses, and arms exports.","who":"Cormyte military and caravan masters backed by the Crown."},{"c":"Arrabar","pop":22000,"ships":5,"wagons":27,"bank":9800000,"export":77,"mage":12,"mil":24,"threat":22,"hub":61,"lit":43,"why":"Chondathan naval city with fishing and lacquer goods.","who":"Chondathan war-chiefs and river-taxed merchant routes."},{"c":"Athkatla","pop":118804,"ships":35,"wagons":130,"bank":39000000,"export":97,"mage":28,"mil":34,"threat":28,"hub":94,"lit":52,"why":"Merchant lords dominate trade flows from Amn’s mines, farms, and ports.","who":"Council of Six merchant lords and the Coin Lords’ cartel."},{"c":"Baldur’s Gate","pop":42000,"ships":16,"wagons":69,"bank":17400000,"export":90,"mage":12,"mil":36,"threat":28,"hub":85,"lit":54,"why":"Strategic coastal stopover between Waterdeep and Amn; exports grain, ore, timber.","who":"The Parliament of Peers, the Flaming Fist mercenaries, and merchant lords."},{"c":"Berdusk","pop":27000,"ships":0,"wagons":45,"bank":11200000,"export":79,"mage":12,"mil":20,"threat":16,"hub":66,"lit":64,"why":"Exporting books, ale, and light enchantment to Elturel and beyond.","who":"Scribes, sages, and Temple of Deneir-linked guilds."},{"c":"Bezantur","pop":42000,"ships":17,"wagons":46,"bank":16700000,"export":89,"mage":40,"mil":42,"threat":48,"hub":84,"lit":48,"why":"Thayan port controlling Red Wizard exports, magical goods, and slave trade.","who":"Red Wizards of Thay and state-run magical trade syndicates."},{"c":"Calimport","pop":192787,"ships":55,"wagons":140,"bank":42000000,"export":96,"mage":28,"mil":36,"threat":34,"hub":96,"lit":45,"why":"Ancient mercantile capital of Calimshan; pearl, spice, and slave trades.","who":"Pashas of the Calimport Houses, druidic and genie pacts, and the slavers’ guild."},{"c":"Cathtyr","pop":43000,"ships":14,"wagons":48,"bank":17300000,"export":90,"mage":12,"mil":24,"threat":24,"hub":86,"lit":40,"why":"Eastern trade entrepôt with links to Durpar, Ulgarth, and the Golden Water.","who":"Satraps and bureaucrat-merchants under the Durpari Code of Honor."},{"c":"Cimbar","pop":34000,"ships":14,"wagons":37,"bank":14800000,"export":83,"mage":12,"mil":32,"threat":30,"hub":76,"lit":42,"why":"Capital of Chessenta; militarized economy and artifact black market.","who":"Chessentan warlords, mercenary unions, and temple-funded nobles."},{"c":"Citadel Adbar","pop":14000,"ships":0,"wagons":12,"bank":6600000,"export":72,"mage":12,"mil":50,"threat":28,"hub":40,"lit":42,"why":"Dwarven fortress with refined goods shipped south in winter.","who":"King Harbromm’s iron syndicate and dwarven caste lords."},{"c":"Citadel Felbarr","pop":6700,"ships":0,"wagons":6,"bank":3800000,"export":70,"mage":12,"mil":45,"threat":28,"hub":30,"lit":50,"why":"Northern dwarves minting export-ready steelwork.","who":"Dwarven warrior-kings and forge-lords."},{"c":"Crimmor","pop":18000,"ships":0,"wagons":30,"bank":8900000,"export":75,"mage":12,"mil":18,"threat":22,"hub":52,"lit":48,"why":"Caravan city with spice, textiles, and southern freight consolidation.","who":"Amnian wagon masters and desert-shipping families."},{"c":"Daerlun","pop":17200,"ships":1,"wagons":28,"bank":8600000,"export":75,"mage":12,"mil":20,"threat":18,"hub":55,"lit":50,"why":"Sembian border town ferrying goods upriver and downroad.","who":"Local councils and caravan charterers."},{"c":"Daggerford","pop":4100,"ships":1,"wagons":6,"bank":1600000,"export":69,"mage":12,"mil":20,"threat":20,"hub":24,"lit":48,"why":"Minor Waterdhavian satellite on cattle and grain route.","who":"Duke’s family and toll keepers."},{"c":"Darromar","pop":22000,"ships":0,"wagons":49,"bank":10100000,"export":77,"mage":12,"mil":34,"threat":16,"hub":60,"lit":46,"why":"Tethyr’s capital; growing fast post-restoration and collecting trade tax.","who":"Queen-Monarch and Tethyrian Crown allies rebuilding the realm."},{"c":"Delzimmer","pop":11348,"ships":0,"wagons":19,"bank":6000000,"export":71,"mage":12,"mil":18,"threat":30,"hub":38,"lit":34,"why":"Shaar frontier trade and monster-part commerce.","who":"Merchant-princes and guilds backed by adventurers’ wealth."},{"c":"Derlusk","pop":12600,"ships":4,"wagons":14,"bank":6300000,"export":72,"mage":12,"mil":20,"threat":20,"hub":40,"lit":42,"why":"Tethyr’s last port south with logging and saltfish.","who":"Border barons and southern guildholders."},{"c":"Elmwood","pop":2000,"ships":0,"wagons":3,"bank":800000,"export":68,"mage":12,"mil":12,"threat":24,"hub":18,"lit":34,"why":"Tree-cutting village surviving off barge runs.","who":"Logging camp owners and barge operators."},{"c":"Eltabbar","pop":34000,"ships":4,"wagons":37,"bank":14800000,"export":83,"mage":28,"mil":38,"threat":36,"hub":76,"lit":50,"why":"Thayan bureaucratic core with arcane export monopolies and war-profits.","who":"Thayan state officials, Red Wizard satraps, and bonded merchant houses."},{"c":"Elturel","pop":17644,"ships":0,"wagons":29,"bank":8700000,"export":75,"mage":12,"mil":38,"threat":14,"hub":54,"lit":68,"why":"Religious center with donations, fairs, and policing mercantile routes.","who":"Companions of Elturgard and church-sponsored guards."},{"c":"Esmeltaran","pop":39500,"ships":7,"wagons":44,"bank":15900000,"export":87,"mage":12,"mil":22,"threat":18,"hub":81,"lit":62,"why":"Amnian intellectual capital; perfumeries, books, and enchanted goods.","who":"Perfumer dynasties, minor wizard schools, and Amnian spice families."},{"c":"Espar","pop":8000,"ships":0,"wagons":8,"bank":3000000,"export":70,"mage":12,"mil":16,"threat":16,"hub":32,"lit":42,"why":"Border holdfast with Cormyrean guard outposts and livestock.","who":"Local lord and tax-farmers for Suzail."},{"c":"Evereska","pop":11300,"ships":0,"wagons":12,"bank":5800000,"export":71,"mage":28,"mil":32,"threat":20,"hub":36,"lit":92,"why":"Elven cultural export in magic items and rare herbs.","who":"High Elders of the Wealdath and spellweavers."},{"c":"Everlund","pop":23700},{"c":"Eversult","pop":12000,"ships":4,"wagons":10,"bank":5600000,"export":71,"mage":12,"mil":28,"threat":22,"hub":34,"lit":48,"why":"Coastal Chessenta city with religious import/export rites.","who":"Temple alliances and southern coastal nobles."},{"c":"Halarahh","pop":31000,"ships":11,"wagons":34,"bank":14000000,"export":82,"mage":40,"mil":28,"threat":18,"hub":72,"lit":82,"why":"Halruaa’s capital; floating cities, magical air trade, and arcane luxury.","who":"High Council of Halruaa, mage-lords, and skyship merchant dynasties."},{"c":"Heldapan","pop":22000,"ships":5,"wagons":24,"bank":9600000,"export":76,"mage":12,"mil":18,"threat":16,"hub":58,"lit":44,"why":"Durpar’s old route stop with modest temple tithe gold.","who":"Temple syndicates, grain guilds, and Durpari councilors."},{"c":"Highmoon","pop":4700,"ships":0,"wagons":6,"bank":2400000,"export":69,"mage":12,"mil":14,"threat":18,"hub":28,"lit":42,"why":"Small Sembian-supplied hill-town shipping orchard goods.","who":"Dales-folk clan lords and orchard owners."},{"c":"Hillsfar","pop":14000,"ships":3,"wagons":23,"bank":6900000,"export":73,"mage":12,"mil":30,"threat":32,"hub":45,"lit":38,"why":"Xenophobic, but exporting ores and tools via controlled docks.","who":"Autarch’s office and racist trade guilds."},{"c":"Hlondeth","pop":32000,"ships":5,"wagons":35,"bank":14600000,"export":82,"mage":12,"mil":28,"threat":32,"hub":74,"lit":44,"why":"Yuan-ti elite fund rich agriculture, alchemy, and inland trade.","who":"Yuan-ti elite, masked nobles, and serpent cults controlling trade."},{"c":"Hluthvar","pop":1500,"ships":0,"wagons":2,"bank":500000,"export":68,"mage":12,"mil":14,"threat":24,"hub":16,"lit":38,"why":"Amnian supply station with herd and weapon stops.","who":"Fort masters and road tithe collectors."},{"c":"Hulburg","pop":3200,"ships":2,"wagons":4,"bank":1500000,"export":69,"mage":12,"mil":12,"threat":24,"hub":24,"lit":34,"why":"Moonsea lake port with fish and cheap wood.","who":"Local baron and shipwrights."},{"c":"Innarlith","pop":12000,"ships":6,"wagons":13,"bank":4400000,"export":70,"mage":12,"mil":22,"threat":32,"hub":40,"lit":44,"why":"Lake of Steam city dealing in smoke powder and illicit gems.","who":"Lake Council and secretive gem traders."},{"c":"Iriaebor","pop":28600},{"c":"Leuthilspar","pop":11500,"ships":2,"wagons":11,"bank":5700000,"export":71,"mage":28,"mil":30,"threat":12,"hub":36,"lit":95,"why":"Evermeet’s modest open trade port for elite elven goods.","who":"Elven royalty and the Evermeet guard families."},{"c":"Longsaddle","pop":1400,"ships":0,"wagons":2,"bank":600000,"export":68,"mage":28,"mil":16,"threat":18,"hub":18,"lit":50,"why":"Mage-run hamlet with odd exports and enchanted steeds.","who":"Harples and spell-engineer kin groups."},{"c":"Loudwater","pop":7200,"ships":0,"wagons":8,"bank":3100000,"export":70,"mage":12,"mil":14,"threat":18,"hub":32,"lit":40,"why":"River junction town with fish and timber traffic.","who":"Mayor’s office and timber syndicates."},{"c":"Lyrabar","pop":19000,"ships":7,"wagons":21,"bank":7900000,"export":74,"mage":12,"mil":26,"threat":20,"hub":50,"lit":54,"why":"Impiltur’s state-sponsored trade house capital.","who":"Impilturian merchant dynasties and temple-favored houses."},{"c":"Marsember","pop":36000,"ships":12,"wagons":40,"bank":15300000,"export":84,"mage":12,"mil":32,"threat":24,"hub":78,"lit":64,"why":"Cormyrean river-port with naval contracts and deep harbor tariffs.","who":"Cormyrean Navy, dock guilds, and the War Wizards’ quartermasters."},{"c":"Melvaunt","pop":31100,"ships":10,"wagons":35,"bank":14100000,"export":82,"mage":12,"mil":34,"threat":30,"hub":74,"lit":46,"why":"Moonsea ironworks and arms trade with Zhent slaving outposts.","who":"Iron guilds, shipwrights, and Zhentarim-linked merchant families."},{"c":"Memnon","pop":35676,"ships":13,"wagons":40,"bank":15200000,"export":84,"mage":12,"mil":28,"threat":28,"hub":78,"lit":44,"why":"Desert crossing gateway and seat of genie-compacted power.","who":"Calishite desert lords, efreeti cults, and trade-route barons."},{"c":"Menzoberranzan","pop":24000,"ships":0,"wagons":0,"bank":8700000,"export":70,"mage":40,"mil":40,"threat":50,"hub":44,"lit":88,"why":"Drow trade nexus for weaponry, slaves, and poison.","who":"Ruling Houses (Baenre et al), drow trade priestesses, and Underdark slave rings."},{"c":"Messemprar","pop":28000,"ships":9,"wagons":31,"bank":11700000,"export":80,"mage":28,"mil":28,"threat":26,"hub":70,"lit":49,"why":"Mulhorandi heritage trade center with relic auctions and temple tithes.","who":"Priesthoods of Anhur and trade clergy of Waukeen."},{"c":"Mintarn","pop":3600,"ships":2,"wagons":4,"bank":1800000,"export":70,"mage":12,"mil":35,"threat":26,"hub":33,"lit":40,"why":"Mercenary-for-hire economy, plus naval escort coin.","who":"War captains and mercenary charterers."},{"c":"Mirabar","pop":23000,"ships":0,"wagons":25,"bank":10300000,"export":78,"mage":12,"mil":36,"threat":28,"hub":64,"lit":48,"why":"Dwarven coin-rich city exporting metals and gems through Luskan.","who":"Dwarven lords, stonecutters’ guild, and gem caravaneers."},{"c":"Mourktar","pop":14000,"ships":4,"wagons":16,"bank":6700000,"export":72,"mage":12,"mil":26,"threat":36,"hub":44,"lit":39,"why":"Threskel port under influence of undead-lord trade.","who":"Church of Bane and black-robed civic warlocks."},{"c":"Murann","pop":17000,"ships":7,"wagons":19,"bank":4800000,"export":71,"mage":12,"mil":24,"threat":28,"hub":42,"lit":46,"why":"Amnian fallback harbor for southern shipments.","who":"Militia-backed barons and guilds in exile."},{"c":"Myratma","pop":21000,"ships":5,"wagons":23,"bank":9300000,"export":76,"mage":12,"mil":16,"threat":18,"hub":56,"lit":41,"why":"South Tethyr agricultural shipping point.","who":"Trade captains and southern Amnian families."},{"c":"Nashkel","pop":3500,"ships":0,"wagons":4,"bank":1300000,"export":68,"mage":12,"mil":12,"threat":22,"hub":20,"lit":36,"why":"Mining outpost with iron and adventure coin influx.","who":"Mine bosses and Amnian overseers."},{"c":"Neverwinter","pop":23000,"ships":8,"wagons":25,"bank":10400000,"export":78,"mage":12,"mil":28,"threat":24,"hub":64,"lit":52,"why":"Mild climate allows year-round harbor use; lumber and crafts.","who":"Lord Dagult Neverember’s court, trade guilds, and wood barons."},{"c":"Ordulin","pop":28100,"ships":2,"wagons":31,"bank":11700000,"export":81,"mage":12,"mil":28,"threat":20,"hub":70,"lit":55,"why":"Sembia’s capital; all land trade taxed and rerouted through here.","who":"Sembian merchant-patricians and the hidden inner circle of Saerloon."},{"c":"Phlan","pop":8600,"ships":3,"wagons":10,"bank":2100000,"export":70,"mage":12,"mil":22,"threat":32,"hub":35,"lit":36,"why":"Moonsea restart city with archaeological relic trades.","who":"Council of Ten and relic dealers."},{"c":"Port Kir","pop":9000,"ships":4,"wagons":10,"bank":2300000,"export":71,"mage":12,"mil":16,"threat":22,"hub":38,"lit":38,"why":"Tethyr outport with long-haul cabotage trade.","who":"Tethyrian wardens and minor trade bosses."},{"c":"Procampur","pop":42000,"ships":17,"wagons":45,"bank":16600000,"export":88,"mage":12,"mil":30,"threat":20,"hub":83,"lit":60,"why":"Old-money Dragon Coast city with shipyards and stable trade links to Aglarond.","who":"Old nobility, shipwright dynasties, and Temple of Waukeen."},{"c":"Proskur","pop":12200,"ships":0,"wagons":20,"bank":5000000,"export":70,"mage":12,"mil":26,"threat":26,"hub":50,"lit":42,"why":"Caravan trail city taxing every crate bound west.","who":"Westbound caravan lords and guild coalition."},{"c":"Raven’s Bluff","pop":40000,"ships":16,"wagons":43,"bank":16100000,"export":88,"mage":12,"mil":31,"threat":20,"hub":82,"lit":58,"why":"Sane city in the Vast; growing naval and mercantile clout post-Adventurers Guild era.","who":"Civic guildmasters, reformed adventuring companies, and churches of Tyr and Waukeen."},{"c":"Reth","pop":13100,"ships":3,"wagons":15,"bank":6400000,"export":72,"mage":12,"mil":22,"threat":18,"hub":42,"lit":36,"why":"Coastal Chondath city with fishing, dried meats, and minor shipping.","who":"Local satraps and fishery league."},{"c":"Saelmur","pop":16300,"ships":3,"wagons":18,"bank":6900000,"export":72,"mage":12,"mil":20,"threat":22,"hub":40,"lit":52,"why":"Sembian port with leather, wool, and salt beef exports.","who":"Port lords and leather exporters."},{"c":"Saerloon","pop":54000,"ships":21,"wagons":59,"bank":18300000,"export":92,"mage":12,"mil":26,"threat":22,"hub":88,"lit":56,"why":"Sembian industrial city with strong textiles and glass exports.","who":"Arcane Brotherhood cells, glassblowers’ guilds, and Sembian textile barons."},{"c":"Sarshel","pop":17000,"ships":7,"wagons":19,"bank":7800000,"export":74,"mage":12,"mil":26,"threat":22,"hub":48,"lit":44,"why":"Impilturan seaport with outgoing fish and ores.","who":"Dockmasters’ guild, fishmongers, and Impiltur’s navy."},{"c":"Scornubel","pop":9000,"ships":0,"wagons":15,"bank":4300000,"export":70,"mage":12,"mil":18,"threat":28,"hub":46,"lit":39,"why":"Wagon-town crossroads where merchants exchange vault-weights and grain futures.","who":"Caravan unions and coin-barons on the trade road."},{"c":"Secomber","pop":1600,"ships":0,"wagons":2,"bank":550000,"export":68,"mage":12,"mil":12,"threat":20,"hub":16,"lit":36,"why":"Waystop town along the Delimbiyr trail.","who":"Waystop council and Delimbiyr shipping families."},{"c":"Selgaunt","pop":55000,"ships":18,"wagons":65,"bank":18700000,"export":93,"mage":12,"mil":28,"threat":20,"hub":91,"lit":58,"why":"Premier port of Sembia, seat of Sembian merchant houses, and art export hub.","who":"Saerloonian noble families and merchant consortiums like the Silver Consortium."},{"c":"Shadowdale","pop":1200,"ships":0,"wagons":2,"bank":400000,"export":68,"mage":28,"mil":28,"threat":28,"hub":22,"lit":55,"why":"Modest crops and pilgrimage traffic to the old temple.","who":"Elminster and local farmers’ syndicate."},{"c":"Sheirtalar","pop":38000,"ships":0,"wagons":42,"bank":15700000,"export":86,"mage":12,"mil":22,"threat":28,"hub":80,"lit":38,"why":"Lapaliiya’s queen city; loaded from jungle goods, spices, and harbor tolls.","who":"Lapaliiyaran merchant kings, jungle trade alliances, and spice guilds."},{"c":"Silverymoon","pop":37000,"ships":0,"wagons":41,"bank":15400000,"export":86,"mage":40,"mil":34,"threat":20,"hub":79,"lit":88,"why":"Magocracy with high-value magical exports and elite arcane education.","who":"Lady Alustriel’s Circle, Knights in Silver, and arcane academies."},{"c":"Skuld","pop":125000,"ships":20,"wagons":138,"bank":36000000,"export":94,"mage":28,"mil":38,"threat":26,"hub":92,"lit":50,"why":"Capital of Mulhorand; blessed by gods, command of Nile-like river trade and relic markets.","who":"Church of Horus-Re, priest-kings, and the pharaonic bureaucracy."},{"c":"Skullport","pop":2000,"ships":2,"wagons":0,"bank":1600000,"export":70,"mage":28,"mil":16,"threat":45,"hub":36,"lit":28,"why":"Underdark port selling contraband and rare arcana.","who":"Illithid and drow syndicates, Xanathar's guild, and slave dealers."},{"c":"Starmantle","pop":36000,"ships":22,"wagons":80,"bank":9500000,"export":66,"mage":28,"mil":30,"threat":26,"hub":72,"lit":54,"why":"Naval hub of the Vilhon Reach with deep harbor, coral trade, and high temple patronage.","who":"Merchant captains, sea guilds, and clergy of Selûne and Valkur"},{"c":"Suldolphor","pop":22000,"ships":7,"wagons":24,"bank":10000000,"export":78,"mage":12,"mil":18,"threat":18,"hub":62,"lit":44,"why":"Mid-Calimshan export port with grain and goat exports.","who":"Mid-Calimshan spice families and temple tax collectors."},{"c":"Sundabar","pop":12000,"ships":0,"wagons":10,"bank":5500000,"export":71,"mage":12,"mil":34,"threat":28,"hub":34,"lit":50,"why":"Fortress-city exporting tools and enchanted gear to the North.","who":"War Lord Helm Dwarf-friend and dwarven guilds."},{"c":"Suzail","pop":26000,"ships":10,"wagons":29,"bank":11000000,"export":81,"mage":12,"mil":45,"threat":18,"hub":72,"lit":70,"why":"Cormyr’s heart and harbor; taxes from nobles, navy, and grain export.","who":"Crown of Cormyr, Obarskyr family, and the Royal Guilds."},{"c":"Tashluta","pop":15000,"ships":6,"wagons":17,"bank":7100000,"export":73,"mage":12,"mil":22,"threat":26,"hub":47,"lit":46,"why":"Tashalar jungle trade nexus with local wine and pearl goods.","who":"Wine kings, jungle barons, and exotic goods handlers."},{"c":"Telflamm","pop":15000,"ships":6,"wagons":25,"bank":7300000,"export":73,"mage":12,"mil":24,"threat":34,"hub":46,"lit":52,"why":"Thesk’s smugglers’ den and local mercantile port.","who":"Merchant Princes and the Shadowmasters’ thieves’ guild."},{"c":"Thentia","pop":25900,"ships":5,"wagons":27,"bank":10800000,"export":81,"mage":12,"mil":24,"threat":22,"hub":71,"lit":58,"why":"Free port with bardic colleges and mercenary contracts on the Moonsea.","who":"Free-thinking bards, open councils, and independents with temple ties."},{"c":"Triboar","pop":2500,"ships":0,"wagons":4,"bank":1200000,"export":69,"mage":12,"mil":12,"threat":20,"hub":26,"lit":36,"why":"Horse-breeding economy with wagoner traditions.","who":"Horse-breeding houses and smiths."},{"c":"Tsurlagol","pop":13900,"ships":5,"wagons":16,"bank":6600000,"export":72,"mage":12,"mil":24,"threat":24,"hub":42,"lit":43,"why":"Trade relay between inland Impiltur and the sea.","who":"Impilturan governors and oceanic trade nobles."},{"c":"Urmlaspyr","pop":27000,"ships":10,"wagons":30,"bank":11000000,"export":79,"mage":12,"mil":25,"threat":20,"hub":65,"lit":56,"why":"Sembian factory city with road and sea linkages.","who":"Merchant families under Sembian law and port cartel guilds."},{"c":"Velen","pop":16200,"ships":12,"wagons":9,"bank":3900000,"export":59,"mage":6,"mil":31,"threat":18,"hub":47,"lit":35,"why":"Pearls, whale oil, and smoked fish flow outward; cedar spars and boat-keels flow inward. A harbor village turned lean-bellied port, thriving quietly under Selûne’s moon.","who":"Duke of Velen, longshore unions, fishscale tycoons, and temple harbormasters"},{"c":"Waterdeep","pop":132661,"ships":40,"wagons":220,"bank":45000000,"export":98,"mage":28,"mil":40,"threat":22,"hub":100,"lit":68,"why":"Center of continental trade, Deepwater Harbor, powerful guilds, and magical infrastructure.","who":"Masked Lords, Lord’s Alliance, and powerful guilds like the Master Mariners and Watchful Order of Magists."},{"c":"Westgate","pop":43000,"ships":16,"wagons":60,"bank":17600000,"export":92,"mage":12,"mil":30,"threat":42,"hub":88,"lit":42,"why":"Smuggler’s paradise; wealth from illicit trade, poisons, and rare imports.","who":"Night Masks, noble houses, and pirate-backed merchant cabals."},{"c":"Yartar","pop":5900,"ships":2,"wagons":10,"bank":2900000,"export":70,"mage":12,"mil":20,"threat":22,"hub":30,"lit":40,"why":"Bridge city extracting tolls and shipping logs.","who":"Waterbaron and the Hand of Yartar guild."},{"c":"Yhaunn","pop":35000,"ships":13,"wagons":39,"bank":15100000,"export":83,"mage":12,"mil":20,"threat":20,"hub":77,"lit":49,"why":"Sembian hub for dyes and high-quality wool exports.","who":"Sembian textile guilds, port masters, and regional barons."},{"c":"Zazesspur","pop":55000,"ships":22,"wagons":61,"bank":19000000,"export":91,"mage":12,"mil":28,"threat":26,"hub":89,"lit":46,"why":"Gateway to Calimshan and the south; shipbuilding, wines, and mercenaries.","who":"Tethyrian naval offices, wine lords, and merchant warbands."},{"c":"Zhentil Keep","pop":26000,"ships":6,"wagons":47,"bank":13800000,"export":81,"mage":12,"mil":48,"threat":45,"hub":73,"lit":36,"why":"War economy driven by trade control, tribute, and Zhentarim blackmail.","who":"Zhentarim mercantile-military oligarchy."}];
+
+const tbody = document.querySelector("tbody");
+const rows = faerunCityData.map((city, i) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+        <td>${i + 1}</td>
+        <td>${city.c}</td>
+        <td>${city.pop ?? ''}</td>
+        <td>${city.ships ?? ''}</td>
+        <td>${city.wagons ?? ''}</td>
+        <td>${city.bank?.toLocaleString() ?? ''}</td>
+        <td>${city.export ?? ''}</td>
+        <td>${city.mage ?? ''}</td>
+        <td>${city.mil ?? ''}</td>
+        <td>${city.threat ?? ''}</td>
+        <td>${city.hub ?? ''}</td>
+        <td>${city.lit ?? ''}</td>
+        <td>${city.why ?? ''}</td>
+        <td>${city.who ?? ''}</td>
+    `;
+    return tr;
+});
+rows.forEach(row => tbody.appendChild(row));
+
+// Sortable columns
+const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+let sortState = {};
+
+document.querySelectorAll("th").forEach((th, index) => {
+    th.addEventListener("click", () => {
+        const isNumeric = ![1, 12, 13].includes(index);
+        const dir = sortState[index] = -(sortState[index] || 1);
+
+        rows.sort((a, b) => {
+            let va = a.children[index].textContent.trim();
+            let vb = b.children[index].textContent.trim();
+            return isNumeric
+                ? dir * ((parseFloat(va.replace(/,/g, '')) || 0) - (parseFloat(vb.replace(/,/g, '')) || 0))
+                : dir * collator.compare(va, vb);
+        });
+
+        rows.forEach((row, i) => {
+            row.children[0].textContent = i + 1;
+            tbody.appendChild(row);
+        });
+    });
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const metrics = ["pop","ships","wagons","bank","export","mage","mil","threat","hub","lit"];
+  const barCtx = document.getElementById("barChart").getContext("2d");
+  const radarCtx = document.getElementById("radarChart").getContext("2d");
+  const corCtx = document.getElementById("corChart").getContext("2d");
+
+  const barCountInput = document.getElementById("barCount");
+  const radarCapInput = document.getElementById("radarCap");
+  const xColumn = document.getElementById("xColumn");
+  const yColumn = document.getElementById("yColumn");
+
+  metrics.forEach(m => {
+    const opt1 = document.createElement("option");
+    const opt2 = document.createElement("option");
+    opt1.value = opt2.value = m;
+    opt1.textContent = opt2.textContent = m;
+    xColumn.appendChild(opt1);
+    yColumn.appendChild(opt2);
+  });
+  xColumn.value = "pop"; yColumn.value = "bank";
+
+  function cleanNum(str) {
+    return +String(str).replace(/[^\d.-]/g, "") || 0;
+  }
+
+  const rows = Array.from(document.querySelectorAll("#faerunTable tbody tr"));
+  const data = rows.map(row => {
+    const cells = row.querySelectorAll("td");
+    const obj = {
+      row,
+      c: cells[0].textContent.trim()
+    };
+    metrics.forEach((m, i) => obj[m] = cleanNum(cells[i+1]?.textContent));
+    row.addEventListener("click", () => toggleRadar(obj));
+    return obj;
+  });
+
+  const barChart = new Chart(barCtx, { type: "bar", data: {}, options: { responsive: true } });
+  const radarChart = new Chart(radarCtx, { type: "radar", data: {}, options: { responsive: true, scales: { r: { beginAtZero: true }}}});
+  const corChart = new Chart(corCtx, { type: "scatter", data: {}, options: { responsive: true, scales: { x: { type: "linear" }, y: { type: "linear" }}}});
+
+  let radarBuffer = [];
+  let lastBarMetric = "pop";
+
+  function updateBar(metric = lastBarMetric, asc = false) {
+    lastBarMetric = metric;
+    const count = parseInt(barCountInput.value) || 10;
+    const sorted = [...data].sort((a, b) => asc ? a[metric] - b[metric] : b[metric] - a[metric]).slice(0, count);
+    barChart.data = {
+      labels: sorted.map(x => x.c),
+      datasets: [{ label: metric, data: sorted.map(x => x[metric]), backgroundColor: 'rgba(80,160,255,0.6)' }]
+    };
+    barChart.update();
+  }
+
+  function toggleRadar(obj) {
+    const index = radarBuffer.findIndex(e => e.c === obj.c);
+    if (index >= 0) {
+      radarBuffer.splice(index, 1);
+      obj.row.classList.remove("selected");
+    } else {
+      if (radarBuffer.length >= parseInt(radarCapInput.value)) {
+        const removed = radarBuffer.shift();
+        removed.row.classList.remove("selected");
+      }
+      radarBuffer.push(obj);
+      obj.row.classList.add("selected");
+    }
+    updateRadar();
+  }
+
+  function updateRadar() {
+    radarChart.data = {
+      labels: metrics,
+      datasets: radarBuffer.map(city => ({
+        label: city.c,
+        data: metrics.map(m => city[m]),
+        fill: true
+      }))
+    };
+    radarChart.update();
+  }
+
+  function updateCorrelation() {
+    const x = xColumn.value;
+    const y = yColumn.value;
+    const points = data
+      .map(obj => ({ x: obj[x], y: obj[y] }))
+      .filter(p => !isNaN(p.x) && !isNaN(p.y));
+    corChart.data = {
+      datasets: [{
+        label: `${y} vs ${x}`,
+        data: points,
+        backgroundColor: 'rgba(255,99,132,0.6)'
+      }]
+    };
+    corChart.update();
+  }
+
+  document.querySelectorAll("#faerunTable th").forEach((th, idx) => {
+    const key = metrics[idx - 1];
+    if (key) th.addEventListener("click", () => updateBar(key));
+  });
+
+  barCountInput.addEventListener("input", () => updateBar());
+  radarCapInput.addEventListener("input", updateRadar);
+  xColumn.addEventListener("change", updateCorrelation);
+  yColumn.addEventListener("change", updateCorrelation);
+
+  updateBar();
+  updateRadar();
+  updateCorrelation();
+});
+    </script></body>
+</html>

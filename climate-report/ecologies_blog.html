@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ecologies of the Realms</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #e0e0e0;
+      font-family: sans-serif;
+      padding: 2rem;
+    }
+    h1, h2 {
+      color: #ffcc66;
+    }
+    .chapter {
+      margin-bottom: 2rem;
+    }
+    .region {
+      margin-bottom: 4rem;
+      border-bottom: 1px solid #444;
+      padding-bottom: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Ecologies of the Forgotten Realms</h1>
+  <div id="content"></div>
+
+  <script>
+    const files = [
+      "anauroch.json", "battleofbones.json", "cormanthor.json", "cormyreanmarsh.json",
+      "graylandofthar.json", "highmoor.json", "hilloflostsouls.json",
+      "serpenthills.json", "stonelands.json", "thunderpeaks.json"
+    ];
+
+    async function loadRegion(file) {
+      try {
+        const res = await fetch(file);
+        const data = await res.json();
+        const region = document.createElement('div');
+        region.className = 'region';
+
+        const title = document.createElement('h1');
+        title.textContent = data.title;
+        region.appendChild(title);
+
+        for (const chapter of data.chapters) {
+          const cwrap = document.createElement('div');
+          cwrap.className = 'chapter';
+
+          const h2 = document.createElement('h2');
+          h2.textContent = chapter.title;
+          cwrap.appendChild(h2);
+
+          const p = document.createElement('p');
+          p.textContent = chapter.text;
+          cwrap.appendChild(p);
+
+          region.appendChild(cwrap);
+        }
+
+        document.getElementById('content').appendChild(region);
+      } catch (e) {
+        console.warn("Failed to load:", file, e);
+      }
+    }
+
+    files.forEach(loadRegion);
+  </script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>All Faerûn Cities Radar</title>
+  <style>
+    body{margin:0;display:flex;height:100vh;align-items:center;justify-content:center;background:#f5f5f5}
+    canvas{width:90vw;max-width:800px}
+  </style>
+  <script src="./faerun_city_data.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <canvas id="radarChart"></canvas>
+  <script>
+    const keys   = ['pop','ships','wagons','bank','export','mage','mil','threat','hub','lit'];
+    const labels = ['Population','Ships','Wagons','Bank','Export','Magic','Military','Threat','Hub','Literacy'];
+    const maxValues = keys.map(k => Math.max(...faerunCityData.map(d => d[k] || 0)));
+
+    const datasets = faerunCityData.map((city,i) => {
+      const data = keys.map((k,j) => Math.round((city[k]||0) / maxValues[j] * 100));
+      const hue  = Math.round(i * 360 / faerunCityData.length);
+      return {
+        label: city.c,
+        data,
+        fill: false,
+        borderColor: `hsl(${hue},60%,50%)`,
+        pointBackgroundColor: `hsl(${hue},60%,50%)`,
+        borderWidth: 1
+      };
+    });
+
+    new Chart(document.getElementById('radarChart'), {
+      type: 'radar',
+      data: { labels, datasets },
+      options: {
+        scales: {
+          r: { beginAtZero:true, max:100, ticks:{ stepSize:20 } }
+        },
+        plugins: {
+          legend:{ position:'right', labels:{ boxWidth:10, font:{ size:8 } } },
+          title:{ display:true, text:'Faerûn Cities (normalized 0–100)' }
+        },
+        elements: { line:{ tension:0.3 } },
+        maintainAspectRatio:false
+      }
+    });
+  </script>
+</body>
+</html>

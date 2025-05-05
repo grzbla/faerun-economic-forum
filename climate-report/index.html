@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Faerûn Codex</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    background: #111;
+    color: #e0dccd;
+    font-family: 'Georgia', serif;
+  }
+  nav {
+    width: 240px;
+    padding: 1em;
+    background: #1a1a1a;
+    border-right: 1px solid #333;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  nav h2 {
+    color: #fff099;
+    font-size: 1.1em;
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+  }
+  nav a {
+    display: block;
+    color: #ccc;
+    text-decoration: none;
+    margin-left: 1em;
+    font-size: 0.95em;
+  }
+  nav a:hover {
+    color: #fff;
+  }
+  main {
+    padding: 2em;
+    flex: 1;
+    max-width: 900px;
+  }
+  section {
+    margin-bottom: 3em;
+    background: #1a1a1a;
+    padding: 1.5em;
+    border-radius: 8px;
+    box-shadow: 0 0 10px #000 inset;
+    border: 1px solid #333;
+  }
+  section h1 {
+    color: #fff099;
+    font-size: 1.6em;
+    margin-top: 0;
+  }
+  section h2 {
+    color: #aadfff;
+    font-size: 1.2em;
+    margin-bottom: 0.4em;
+  }
+  section p {
+    line-height: 1.6;
+    margin-bottom: 1.2em;
+  }
+</style>
+</head>
+<body>
+<nav id="toc">
+  <h1>🗺️ Faerûn</h1>
+</nav>
+<main id="content"></main>
+<script>
+const files = [
+  "anauroch.json", "battleofbones.json", "cormanthor.json", "cormyreanmarsh.json",
+  "graylandofthar.json", "highmoor.json", "hilloflostsouls.json", "serpenthills.json",
+  "stonelands.json", "thunderpeaks.json"
+];
+
+async function loadAll() {
+  const toc = document.getElementById("toc");
+  const content = document.getElementById("content");
+
+  for (const file of files) {
+    const res = await fetch(file);
+    const json = await res.json();
+    const regionId = file.replace('.json', '');
+
+    // TOC entry
+    const h2 = document.createElement("h2");
+    h2.textContent = json.title;
+    toc.appendChild(h2);
+
+    const section = document.createElement("section");
+    section.id = regionId;
+    section.innerHTML = `<h1>${json.title}</h1>`;
+    content.appendChild(section);
+
+    for (const ch of json.chapters || []) {
+      const cid = `${regionId}-${ch.title.toLowerCase().replace(/\s+/g, '-')}`;
+      const chLink = document.createElement("a");
+      chLink.href = `#${cid}`;
+      chLink.textContent = ch.title;
+      toc.appendChild(chLink);
+
+      const chEl = document.createElement("div");
+      chEl.innerHTML = `<h2 id="${cid}">${ch.title}</h2><p>${ch.text.replace(/\n/g, "<br>")}</p>`;
+      section.appendChild(chEl);
+    }
+  }
+}
+
+loadAll();
+</script>
+</body>
+</html>
+

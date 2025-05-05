@@ -1,0 +1,118 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Faerûn Unified City Index</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<style>
+    body {
+        background-color: #1b1a17;
+        color: #e4d4b3;
+        font-family: 'Garamond', 'Times New Roman', serif;
+        margin: 0;
+        padding: 2em;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1em;
+    }
+    th, td {
+        border: 1px solid #555;
+        padding: 0.5em;
+        text-align: left;
+    }
+    th {
+        background-color: #322f28;
+        cursor: pointer;
+    }
+    tr:nth-child(even) {
+        background-color: #2a2823;
+    }
+    tr:hover {
+        background-color: #3a362e;
+    }
+    h1, p {
+        color: #f8e8c8;
+    }
+</style>
+</head>
+<body>
+<h1>Faerûn Economic Index</h1>
+<p>This scroll records compiled data on over 90 cities of the Realms, combining magical, mercantile, military, and social statistics into a sortable ledger.</p>
+<section style="max-width: 1000px; margin-bottom: 2em;">
+<h2>📜 About This Scroll</h2>
+<p>
+    This dataset unifies <strong>canonical Forgotten Realms sourcebook data</strong> with <em>carefully interpolated metrics</em> 
+    based on known trade routes, political weight, magical infrastructure, and published population figures (primarily pre-1372 DR).
+  </p>
+<h3>📘 Metric Explanations</h3>
+<ul>
+<li><strong>Population:</strong> Based on canon or scale-matched cities; towns below 10k noted where possible.</li>
+<li><strong>Ships/day:</strong> Extrapolated from harbor prominence, sea access, and canon notes (Waterdeep ~40/day anchor).</li>
+<li><strong>Wagons/day:</strong> Based on trade road density and economic role; Waterdeep ~220/day anchor.</li>
+<li><strong>Bank Assets (gp):</strong> Sum of known wealth in treasuries, vaults, temples, and guild banks; scaled from canon anchors (e.g. Waterdeep ≈ 45 M gp).</li>
+<li><strong>Export Index:</strong> 0–100 scale of trade diversity and outbound volume. Waterdeep, Calimport, Athkatla top this list.</li>
+<li><strong>Mage Index:</strong> Arcane influence on economy. 12 = low; 28 = active; 40+ = mage-dominant (e.g., Halruaa, Silverymoon).</li>
+<li><strong>Military Index:</strong> Defensive capability, standing armies, and fortress value. 12 = watchmen; 40+ = hardened stronghold.</li>
+<li><strong>Threat Index:</strong> Local volatility: monsters, politics, tyranny, criminal syndicates. 12 = stable; 45+ = Skullport/Zhentil-tier.</li>
+<li><strong>Trade Hub:</strong> Interregional connectivity, based on sea/road/magical links. 100 = Waterdeep.</li>
+<li><strong>Literacy %:</strong> Estimated reading/writing ability based on temples, schools, magical culture, or elite presence.</li>
+<li><strong>Why Loaded:</strong> Lore justification for a city’s wealth, drawn from sourcebooks or extrapolated with historical logic.</li>
+<li><strong>Key Players:</strong> Factions, families, guilds, or institutions who control the city’s wealth or steer its economy.</li>
+</ul>
+<h3>🛠 Methodology</h3>
+<p>
+    Canon anchors come from <em>Forgotten Realms Campaign Setting (3E)</em>, <em>Volo’s Guides</em>, <em>Lords of Darkness</em>, 
+    <em>City of Splendors</em>, and <em>FR Atlas</em>. Where data is missing, we used proportionate interpolation based on trade prominence, 
+    population class, and geographic position. Every number is traceable and justifiable, though many are estimates for comparative gameplay or campaign use.
+  </p>
+<p>
+    You are encouraged to override numbers for your campaign. This is a launch pad, not a lawbook.
+  </p>
+</section>
+<section id="chartZone" style="display: flex; flex-wrap: wrap; gap: 1em;">
+<div style="flex: 1 1 30vw;"><h3>Sorted Bar Chart</h3>
+<canvas id="barChart"></canvas>
+<label>Top entries: <input id="barCount" max="50" min="1" type="number" value="10"/></label>
+</div>
+<div style="flex: 1 1 30vw;"><h3>Radar Comparison</h3>
+<canvas id="radarChart"></canvas>
+<label>Max Cities: <input id="radarCap" max="10" min="1" type="number" value="5"/></label>
+</div>
+<div style="flex: 1 1 30vw;"><h3>Correlation</h3>
+<canvas id="corChart"></canvas>
+<label>X Axis: <select id="xColumn"></select></label>
+<label>Y Axis: <select id="yColumn"></select></label>
+</div>
+</section><table id="faerunTable">
+<thead>
+<tr>
+<th>#</th>
+<th>City</th>
+<th>Population</th>
+<th>Ships/day</th>
+<th>Wagons/day</th>
+<th>Bank Assets (gp)</th>
+<th>Export Index</th>
+<th>Mage Index</th>
+<th>Military Index</th>
+<th>Threat Index</th>
+<th>Trade Hub</th>
+<th>Literacy %</th>
+<th>Why Loaded</th>
+<th>Key Players</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+
+</body>
+<script src="faerun_city_data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script></head>
+<script src="faerun_dashboard_logic.js"></script>
+<!-- <script src="faerun_dashboard_logic.js.js"></script> -->
+</html>
